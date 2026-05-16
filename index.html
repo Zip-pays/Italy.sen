@@ -1,688 +1,900 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recovery Portal - Account Dashboard</title>
+    <title>Banco Digital - Aplicación Móvil</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#22c55e',
-                        'primary-dark': '#16a34a',
-                        balance: '#1a1d24'
-                    }
-                }
-            }
-        }
-    </script>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-            background: #fff;
+            background: linear-gradient(135deg, #f5f7fa 0%, #f0f2f5 100%);
+            color: #333;
         }
 
-        .welcome-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #1a1a3e 0%, #0f3a66 100%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            animation: fadeOut 0.8s ease-in-out 2.5s forwards;
-        }
-
-        .welcome-screen.hidden {
-            display: none;
-        }
-
-        @keyframes fadeOut {
-            from { opacity: 1; visibility: visible; }
-            to { opacity: 0; visibility: hidden; }
-        }
-
-        .welcome-logo {
-            font-size: 64px;
-            margin-bottom: 24px;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-
-        .welcome-title {
-            font-size: 36px;
-            font-weight: 700;
-            color: white;
-            text-align: center;
-            margin-bottom: 12px;
-            animation: slideDown 0.8s ease-out;
-        }
-
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .welcome-subtitle {
-            font-size: 16px;
-            color: rgba(255, 255, 255, 0.7);
-            text-align: center;
-            animation: slideUp 0.8s ease-out 0.2s both;
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Camera Facial Scan */
-        .camera-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 9998;
-        }
-
-        .camera-screen.show {
-            display: flex;
-        }
-
-        .camera-container {
+        .app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
             position: relative;
-            width: 100%;
-            height: 100%;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0099ff;
+        }
+
+        .header-icons {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f5f7fa;
+            border: none;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 20px;
+            transition: all 0.3s;
         }
 
-        #cameraStream {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        .icon-btn:hover {
+            background: #e8eef5;
+            transform: translateY(-2px);
         }
 
-        .face-frame {
-            position: absolute;
-            width: 280px;
-            height: 340px;
-            border: 3px solid #22c55e;
-            border-radius: 20px;
-            box-shadow: 0 0 40px rgba(34, 197, 94, 0.3);
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0099ff 0%, #0077cc 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            cursor: pointer;
         }
 
-        .face-corner {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            border: 3px solid #22c55e;
+        /* Main Content */
+        .content {
+            padding: 20px;
+            padding-bottom: 100px;
         }
 
-        .face-corner.top-left {
-            top: -3px;
-            left: -3px;
-            border-right: none;
-            border-bottom: none;
+        /* Quick Menu */
+        .quick-menu {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
         }
 
-        .face-corner.top-right {
-            top: -3px;
-            right: -3px;
-            border-left: none;
-            border-bottom: none;
-        }
-
-        .face-corner.bottom-left {
-            bottom: -3px;
-            left: -3px;
-            border-right: none;
-            border-top: none;
-        }
-
-        .face-corner.bottom-right {
-            bottom: -3px;
-            right: -3px;
-            border-left: none;
-            border-top: none;
-        }
-
-        .camera-controls {
-            position: absolute;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 100;
+        .menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            border-radius: 12px;
+            background: white;
+            border: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: all 0.3s;
             text-align: center;
         }
 
-        .camera-timer {
-            font-size: 24px;
-            font-weight: 700;
-            color: #22c55e;
+        .menu-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 153, 255, 0.15);
+        }
+
+        .menu-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0099ff 0%, #00d4ff 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 4px 12px rgba(0, 153, 255, 0.3);
+        }
+
+        .menu-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* Section Header */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 16px;
         }
 
-        .capture-btn {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: #22c55e;
-            border: 3px solid white;
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .section-link {
+            font-size: 14px;
+            color: #0099ff;
+            text-decoration: none;
+            font-weight: 600;
             cursor: pointer;
-            animation: pulse 2s infinite;
+            transition: all 0.3s;
         }
 
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
-            50% { box-shadow: 0 0 0 15px rgba(34, 197, 94, 0); }
+        .section-link:hover {
+            color: #0077cc;
         }
 
+        /* Account Cards */
+        .account-card {
+            background: linear-gradient(135deg, #fff9e6 0%, #fffaf0 100%);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            border-left: 6px solid #ffc107;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .account-card::before {
+            content: '';
+            position: absolute;
+            right: -30px;
+            bottom: -30px;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 193, 7, 0.1);
+            border-radius: 50%;
+        }
+
+        .account-label {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .account-amount {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 16px;
+        }
+
+        .account-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .expand-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: #999;
+            transition: all 0.3s;
+        }
+
+        .expand-btn:hover {
+            color: #0099ff;
+        }
+
+        /* Transactions */
+        .transaction-item {
+            display: flex;
+            gap: 12px;
+            padding: 16px;
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            border: 1px solid #f0f0f0;
+            transition: all 0.3s;
+        }
+
+        .transaction-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .transaction-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .transaction-info {
+            flex: 1;
+        }
+
+        .transaction-title {
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .transaction-date {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .transaction-amount {
+            font-weight: 700;
+            font-size: 14px;
+            color: #1a1a1a;
+        }
+
+        .transaction-amount.negative {
+            color: #d32f2f;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            background: white;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 12px 0;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 8px;
+            border-radius: 12px;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(0, 153, 255, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%);
+        }
+
+        .nav-icon {
+            font-size: 24px;
+        }
+
+        .nav-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .nav-item.active .nav-label {
+            color: #0099ff;
+        }
+
+        /* Modal */
         .modal {
             display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease-out;
         }
 
         .modal.active {
             display: flex;
-            animation: fadeIn 0.2s ease-out;
-        }
-
-        .modal-card {
-            animation: scaleIn 0.25s ease-out;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0 }
-            to { opacity: 1 }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
-        @keyframes scaleIn {
-            from { opacity: 0; transform: scale(0.95) }
-            to { opacity: 1; transform: scale(1) }
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            max-width: 95%;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.4s ease-out;
+            max-width: 480px;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            color: #0099ff;
+            transform: rotate(90deg);
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #f0f0f0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #0099ff;
+            box-shadow: 0 0 0 3px rgba(0, 153, 255, 0.1);
+        }
+
+        .form-input:disabled {
+            background: #f9f9f9;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        /* Fee Box */
+        .fee-box {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffebcd 100%);
+            border: 2px solid #ffc107;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .fee-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #856404;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .fee-text {
+            font-size: 13px;
+            color: #856404;
+            line-height: 1.5;
+        }
+
+        .fee-amount {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ff9800;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 152, 0, 0.2);
+        }
+
+        /* Address Box */
+        .address-box {
+            background: linear-gradient(135deg, #f5f7fa 0%, #f0f2f5 100%);
+            border: 2px solid #0099ff;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .address-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #0099ff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .address-content {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .address-text {
+            flex: 1;
+            background: white;
+            border: 1px solid #e0e0e0;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            color: #333;
+        }
+
+        .copy-btn {
+            background: linear-gradient(135deg, #0099ff 0%, #00d4ff 100%);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 153, 255, 0.3);
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 153, 255, 0.4);
+        }
+
+        .copy-btn.copied {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+        }
+
+        /* Action Button */
+        .action-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #0099ff 0%, #00d4ff 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0, 153, 255, 0.3);
+            margin-top: 8px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 153, 255, 0.4);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .action-btn-secondary {
+            background: white;
+            color: #0099ff;
+            border: 2px solid #0099ff;
+        }
+
+        .action-btn-secondary:hover {
+            background: linear-gradient(135deg, rgba(0, 153, 255, 0.05) 0%, rgba(0, 212, 255, 0.05) 100%);
+        }
+
+        /* Loading */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
 
-        .spin {
-            animation: spin 1s linear infinite;
-        }
-
-        .progress-bar {
-            transition: width 0.1s linear;
-        }
-
-        .balance-card {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .balance-card::after {
-            content: '';
-            position: absolute;
-            bottom: -30px;
-            left: 40px;
-            width: 180px;
-            height: 120px;
-            background: radial-gradient(closest-side, rgba(34, 197, 94, 0.45), transparent 70%);
-            filter: blur(20px);
-            pointer-events: none;
-        }
-
-        .tile {
-            transition: transform 0.15s ease;
-        }
-
-        .tile:active {
-            transform: scale(0.95);
-        }
-
-        .dashboard-screen {
+        /* Success Message */
+        .success-box {
+            background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
+            border: 2px solid #4caf50;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
             display: none;
         }
 
-        .dashboard-screen.show {
+        .success-box.show {
             display: block;
-            animation: fadeIn 0.8s ease-out;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .success-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+
+        .success-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2e7d32;
+            margin-bottom: 8px;
+        }
+
+        .success-text {
+            font-size: 13px;
+            color: #558b2f;
+            line-height: 1.5;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            border: 2px solid #2196f3;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .info-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1565c0;
+            margin-bottom: 8px;
+        }
+
+        .info-text {
+            font-size: 13px;
+            color: #1976d2;
+            line-height: 1.5;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #f0f0f0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 16px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0099ff 0%, #00d4ff 100%);
+            animation: progress 12s ease-out;
+        }
+
+        @keyframes progress {
+            0% { width: 0%; }
+            100% { width: 100%; }
         }
     </style>
 </head>
-<body class="min-h-screen pb-12">
-    <!-- Welcome Screen -->
-    <div class="welcome-screen" id="welcomeScreen">
-        <div class="welcome-logo">🔐</div>
-        <div class="welcome-title">Welcome Back</div>
-        <div class="welcome-subtitle">Recovery Portal - Account Access</div>
-    </div>
-
-    <!-- Camera Facial Scan -->
-    <div class="camera-screen" id="cameraScreen">
-        <div class="camera-container">
-            <video id="cameraStream" autoplay playsinline></video>
-            <canvas id="captureCanvas" style="display: none;"></canvas>
-            <div class="face-frame">
-                <div class="face-corner top-left"></div>
-                <div class="face-corner top-right"></div>
-                <div class="face-corner bottom-left"></div>
-                <div class="face-corner bottom-right"></div>
-            </div>
-            <div class="camera-controls">
-                <div class="camera-timer" id="cameraTimer">Position your face</div>
-                <button class="capture-btn" onclick="captureFace()"></button>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">⭐</div>
+            <div class="header-icons">
+                <button class="icon-btn">⚠️</button>
+                <button class="icon-btn">📧</button>
+                <button class="icon-btn">👁️</button>
+                <div class="avatar">JQ</div>
             </div>
         </div>
-    </div>
 
-    <!-- Dashboard Screen -->
-    <div class="dashboard-screen" id="dashboardScreen">
-        <div class="mx-auto max-w-md px-5 pt-6">
-            <!-- Header -->
-            <header class="flex items-start justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white text-xl font-semibold shadow-sm" id="avatarDisplay">M</div>
-                    <div class="leading-tight pt-1">
-                        <p class="text-sm text-gray-400">Account holder</p>
-                        <p class="text-xl font-bold text-gray-900" id="userNameDisplay">Mohammed (!ALEX)</p>
+        <!-- Main Content -->
+        <div class="content">
+            <!-- Quick Menu -->
+            <div class="quick-menu">
+                <div class="menu-item">
+                    <div class="menu-icon">%</div>
+                    <div class="menu-label">Bizum</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-icon">↗️</div>
+                    <div class="menu-label">Transferencia</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-icon">💶</div>
+                    <div class="menu-label">Recibos</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-icon">👤</div>
+                    <div class="menu-label">Contactar</div>
+                </div>
+            </div>
+
+            <!-- Cuentas Section -->
+            <div class="section-header">
+                <h2 class="section-title">Cuentas</h2>
+                <a class="section-link">Ver todas</a>
+            </div>
+
+            <!-- Account Card -->
+            <div class="account-card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <div class="account-label">Saldo disponible</div>
+                        <div class="account-amount">€30,004.39</div>
+                    </div>
+                    <button class="expand-btn">⬆️</button>
+                </div>
+                <div class="account-footer">
+                    <div>
+                        <div style="font-size: 12px; color: #999; margin-bottom: 2px;">Hoy</div>
+                        <div style="font-size: 14px; font-weight: 600; color: #1a1a1a;">Mrcr Mobile P...</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 14px; font-weight: 600; color: #d32f2f;">-410,00€</div>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 pt-1">
-                    <button class="flex h-11 w-11 items-center justify-center rounded-full bg-gray-100">
-                        <svg class="h-5 w-5 text-gray-700" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                            <circle cx="11" cy="11" r="7"/><path stroke-linecap="round" d="M21 21l-4.3-4.3"/>
-                        </svg>
-                    </button>
-                    <button class="relative flex h-11 w-11 items-center justify-center rounded-full bg-gray-100">
-                        <svg class="h-5 w-5 text-gray-700" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0a3 3 0 11-6 0"/>
-                        </svg>
-                        <span class="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-red-500"></span>
-                    </button>
-                </div>
-            </header>
-
-            <!-- Recovery Notice -->
-            <div class="mt-6 flex items-start gap-3 rounded-2xl border border-amber-100 bg-amber-50/70 px-4 py-4">
-                <svg class="mt-0.5 h-6 w-6 shrink-0 text-amber-500" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3l8 3v6c0 4.5-3.4 8.5-8 9.5C7.4 20.5 4 16.5 4 12V6l8-3z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/>
-                </svg>
-                <div>
-                    <p class="text-base font-bold text-gray-900">Account Recovery Active</p>
-                    <p class="text-sm text-gray-500">Verification required for full access.</p>
-                </div>
             </div>
 
-            <!-- Balance Card -->
-            <div class="balance-card mt-5 rounded-[28px] bg-balance p-6 text-white shadow-2xl">
-                <div class="flex items-center justify-between">
-                    <p class="text-[13px] tracking-[.2em] font-medium text-white/40">AVAILABLE BALANCE</p>
-                    <span class="rounded-full border border-primary/50 px-3.5 py-1 text-xs font-semibold text-primary">USDT</span>
-                </div>
-                <div class="mt-5 flex items-end">
-                    <span class="text-[64px] leading-none font-extrabold tracking-tight">$16,500</span>
-                    <span class="ml-1 pb-2 text-2xl font-extrabold text-white/25">.00</span>
-                </div>
-                <p class="mt-3 text-sm text-white/40">Recoverable funds · pending verification</p>
-                <div class="relative z-10 mt-6 grid grid-cols-4 gap-3">
-                    <button onclick="openModal('confirm')" class="tile flex flex-col items-center justify-center gap-2 rounded-2xl bg-primary py-5 text-white shadow-lg shadow-primary/30">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 19V5M5 12l7-7 7 7"/>
-                        </svg>
-                        <span class="text-sm font-semibold">Withdraw</span>
-                    </button>
-                    <button class="tile flex flex-col items-center justify-center gap-2 rounded-2xl bg-white/[0.08] py-5 text-white">
-                        <svg class="h-6 w-6 -rotate-12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
-                        </svg>
-                        <span class="text-sm font-semibold">Send</span>
-                    </button>
-                    <button class="tile flex flex-col items-center justify-center gap-2 rounded-2xl bg-white/[0.08] py-5 text-white">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M19 12l-7 7-7-7"/>
-                        </svg>
-                        <span class="text-sm font-semibold">Top Up</span>
-                    </button>
-                    <button class="tile flex flex-col items-center justify-center gap-2 rounded-2xl bg-white/[0.08] py-5 text-white">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h13l-3-3M17 17H4l3 3"/>
-                        </svg>
-                        <span class="text-sm font-semibold">Exchange</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Payment Methods -->
-            <div class="mt-5 grid grid-cols-2 gap-4">
-                <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-                    <svg class="h-7 w-7 text-primary" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 7a6 6 0 100 10M4 10h9M4 14h9"/>
-                    </svg>
-                    <p class="mt-8 text-sm text-gray-400">SEPA</p>
-                    <p class="text-lg font-bold text-gray-900">Instant · EU</p>
-                </div>
-                <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-                    <svg class="h-7 w-7 text-primary" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                        <rect x="2" y="5" width="20" height="14" rx="3"/><path stroke-linecap="round" d="M2 10h20"/>
-                    </svg>
-                    <p class="mt-8 text-sm text-gray-400">Crypto</p>
-                    <p class="text-lg font-bold text-gray-900">USDT · TRX</p>
-                </div>
-            </div>
-
-            <!-- Recent Activity -->
-            <div class="mt-7 flex items-center justify-between">
-                <h2 class="text-2xl font-extrabold text-gray-900">Recent Activity</h2>
-                <button class="text-sm font-semibold text-primary">See all</button>
-            </div>
-            <div class="mt-3 flex flex-col items-center justify-center gap-2 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-                <div class="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
-                    <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 6v6l4 2"/>
-                    </svg>
-                </div>
-                <p class="text-sm text-gray-400">No transactions yet</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Confirm Withdrawal Modal -->
-    <div id="modal-confirm" class="modal fixed inset-0 z-50 items-center justify-center bg-black/50 p-4">
-        <div class="modal-card w-full max-w-md rounded-3xl bg-white p-6">
-            <h3 class="text-xl font-bold text-gray-900">Confirm receiving info</h3>
-            <p class="mt-1 text-sm text-gray-500">Please confirm your details are correct before we process the withdrawal.</p>
-            <div class="mt-4 space-y-4 rounded-2xl bg-gray-50 p-4">
-                <div>
-                    <p class="text-xs text-gray-500">Beneficiary</p>
-                    <p class="text-sm font-bold text-gray-900">Mohammed (!ALEX)</p>
-                </div>
-                <div>
-                    <p class="text-xs text-gray-500">Wallet Address (TRX)</p>
-                    <p class="text-sm font-bold tracking-wide text-gray-900 break-all">TFRESBRfcagpmyQ3DuNVHbuNdVv8oJuxVS</p>
-                </div>
-                <div>
-                    <p class="text-xs text-gray-500">Amount</p>
-                    <p class="text-sm font-bold text-gray-900">$16,500.00 USDT</p>
-                </div>
-            </div>
-            <div class="mt-5 flex gap-3">
-                <button onclick="closeAll()" class="flex-1 rounded-2xl border border-gray-200 py-3.5 text-sm font-semibold text-gray-700">Cancel</button>
-                <button onclick="startLoading()" class="flex-1 rounded-2xl bg-primary py-3.5 text-sm font-semibold text-white shadow-md shadow-primary/30">Confirm</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Loading Modal -->
-    <div id="modal-loading" class="modal fixed inset-0 z-50 items-center justify-center bg-black/50 p-4">
-        <div class="modal-card w-full max-w-md rounded-3xl bg-white p-6">
-            <div class="flex flex-col items-center py-6">
-                <div class="relative h-14 w-14">
-                    <div class="absolute inset-0 rounded-full border-4 border-gray-100"></div>
-                    <div class="spin absolute inset-0 rounded-full border-4 border-transparent border-t-primary"></div>
-                </div>
-                <p class="mt-5 text-base font-bold text-gray-900">Preparing secure withdrawal…</p>
-                <p class="mt-1 text-sm text-gray-500">Processing verification</p>
-                <div class="mt-6 h-2 w-full overflow-hidden rounded-full bg-gray-100">
-                    <div id="progress" class="progress-bar h-full bg-primary" style="width:0%"></div>
-                </div>
-                <p id="progress-text" class="mt-2 text-xs font-medium text-gray-500">0%</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Face Verification Modal -->
-    <div id="modal-verify" class="modal fixed inset-0 z-50 items-center justify-center bg-black/50 p-4">
-        <div class="modal-card w-full max-w-md rounded-3xl bg-white p-6">
-            <h3 class="text-xl font-bold text-gray-900">Face verification required</h3>
-            <p class="mt-1 text-sm text-gray-500">To complete the withdrawal we need to verify your identity.</p>
-            <div class="flex flex-col items-center gap-3 py-6">
-                <div class="flex h-28 w-28 items-center justify-center rounded-full bg-primary/10">
-                    <svg class="h-14 w-14 text-primary" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V6a2 2 0 012-2h2M16 4h2a2 2 0 012 2v2M20 16v2a2 2 0 01-2 2h-2M8 20H6a2 2 0 01-2-2v-2"/>
-                        <circle cx="9" cy="11" r="1" fill="currentColor"/>
-                        <circle cx="15" cy="11" r="1" fill="currentColor"/>
-                        <path stroke-linecap="round" d="M9 15c1 1 2 1.5 3 1.5s2-.5 3-1.5"/>
-                    </svg>
-                </div>
-                <p class="text-center text-sm text-gray-500">Position your face inside the frame to begin scanning.</p>
-            </div>
-            <button onclick="startCamera()" class="w-full rounded-2xl bg-primary py-3.5 text-sm font-semibold text-white shadow-md shadow-primary/30">Start verification</button>
-        </div>
-    </div>
-
-    <!-- Fee Modal -->
-    <div id="modal-fee" class="modal fixed inset-0 z-50 items-center justify-center bg-black/50 p-4">
-        <div class="modal-card w-full max-w-md rounded-3xl bg-white p-6">
-            <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <svg class="h-6 w-6 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 8v4M12 16h.01"/>
-                </svg>
-                Verification fee required
-            </h3>
-            <p class="mt-2 text-sm text-gray-500">A one-time verification fee of <span class="font-bold text-gray-900">$120 USDT</span> is needed to release your funds. Please send the payment and complete face verification.</p>
-            <div class="mt-4 rounded-2xl bg-gray-50 p-4 text-sm">
-                <div class="flex justify-between">
-                    <span class="text-gray-500">Withdrawal amount</span>
-                    <span class="font-bold text-gray-900">$16,500.00</span>
-                </div>
-                <div class="mt-2 flex justify-between">
-                    <span class="text-gray-500">Verification fee</span>
-                    <span class="font-bold text-gray-900">$120 USDT</span>
-                </div>
-                <div class="mt-3 flex justify-between border-t border-gray-200 pt-3">
-                    <span class="font-bold text-gray-900">You receive</span>
-                    <span class="font-bold text-primary">$16,500.00</span>
-                </div>
-            </div>
-
-            <!-- Fee Details -->
-            <div class="mt-4 rounded-2xl bg-orange-50 border border-orange-200 p-4">
-                <p class="text-xs font-bold text-orange-900 mb-2">📍 USDT (TRC20) Deposit Address:</p>
-                <div class="flex gap-2 items-center">
-                    <div class="flex-1 bg-white border border-orange-200 rounded-lg px-3 py-2 text-xs font-mono text-gray-700 truncate">
-                        TEUh5LumZf8UDhGhZNbSmSKwQ6945cvx7o
+            <!-- Transactions -->
+            <div style="margin-bottom: 16px;">
+                <div class="transaction-item">
+                    <div class="transaction-icon">🛍️</div>
+                    <div class="transaction-info">
+                        <div class="transaction-title">Mrcr Mobile P...</div>
+                        <div class="transaction-date">Hoy</div>
                     </div>
-                    <button onclick="copyFeeAddress()" class="bg-primary text-white px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap hover:bg-primary-dark transition-colors">
-                        Copy
-                    </button>
+                    <div class="transaction-amount negative">-410,00€</div>
                 </div>
-                <p class="text-xs text-orange-700 mt-2">⚠️ Send exactly $120 USDT to activate withdrawal PIN</p>
-            </div>
 
-            <!-- Withdrawal Destination Notice -->
-            <div class="mt-4 rounded-2xl bg-blue-50 border border-blue-200 p-4">
-                <p class="text-xs font-bold text-blue-900 mb-2">🎯 Funds Destination Address:</p>
-                <div class="flex gap-2 items-center">
-                    <div class="flex-1 bg-white border border-blue-200 rounded-lg px-3 py-2 text-xs font-mono text-gray-700 break-all">
-                        TFRESBRfcagpmyQ3DuNVHbuNdVv8oJuxVS
+                <div class="transaction-item">
+                    <div class="transaction-icon">🛍️</div>
+                    <div class="transaction-info">
+                        <div class="transaction-title">Mrcr Mobile</div>
+                        <div class="transaction-date">Hoy</div>
                     </div>
-                    <button onclick="copyDestinationAddress()" class="bg-blue-600 text-white px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap hover:bg-blue-700 transition-colors">
-                        Copy
-                    </button>
+                    <div class="transaction-amount negative">-330,00€</div>
                 </div>
-                <p class="text-xs text-blue-700 mt-2">✓ Your $16,500 will be sent to this address</p>
+
+                <div class="transaction-item">
+                    <div class="transaction-icon">🛍️</div>
+                    <div class="transaction-info">
+                        <div class="transaction-title">Mrcr Mobile P...</div>
+                        <div class="transaction-date">Hoy</div>
+                    </div>
+                    <div class="transaction-amount negative">-100,00€</div>
+                </div>
             </div>
 
-            <div class="mt-5 flex gap-3">
-                <button onclick="closeAll()" class="flex-1 rounded-2xl border border-gray-200 py-3.5 text-sm font-semibold text-gray-700">Later</button>
-                <a href="https://t.me/applegift_support1" target="_blank" class="flex-1 rounded-2xl bg-primary py-3.5 text-sm font-semibold text-white shadow-md shadow-primary/30 text-center">Contact support</a>
+            <a class="section-link" style="display: block; margin-bottom: 32px;">Todos los movimientos →</a>
+
+            <!-- Tarjetas Section -->
+            <div class="section-header">
+                <h2 class="section-title">Tarjetas</h2>
+                <a class="section-link">Ver todas</a>
+            </div>
+
+            <div class="transaction-item">
+                <div class="transaction-icon">💳</div>
+                <div class="transaction-info">
+                    <div class="transaction-title" style="color: #666;">Mercadilúzclás</div>
+                    <div class="transaction-date">•••• 6173</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item active">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Inicio</span>
+            </div>
+            <div class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">Mis productos</span>
+            </div>
+            <div class="nav-item" onclick="openModal('withdraw')">
+                <span class="nav-icon">➕</span>
+                <span class="nav-label">Contratar</span>
+            </div>
+            <div class="nav-item">
+                <span class="nav-icon">❓</span>
+                <span class="nav-label">Ayuda</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Withdrawal Modal -->
+    <div id="withdraw-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Retirada de Fondos</h2>
+                <button class="modal-close" onclick="closeModal('withdraw')">✕</button>
+            </div>
+
+            <div class="info-box">
+                <div class="info-title">💶 Saldo disponible para retirar</div>
+                <div class="info-text">€30,004.39 USDT - Listo para procesamiento</div>
+            </div>
+
+            <form onsubmit="processWithdrawal(event)">
+                <div class="form-group">
+                    <label class="form-label">Cantidad a retirar</label>
+                    <input type="text" class="form-input" value="€30,004.39" disabled>
+                </div>
+
+                <div class="fee-box">
+                    <div class="fee-title">⚠️ Tarifa de recuperación requerida</div>
+                    <div class="fee-text">
+                        Se requiere una tarifa única de recuperación de <strong>€50</strong> para completar la firma de recuperación y la compensación de transferencia. Esta tarifa garantiza la seguridad de su transacción.
+                    </div>
+                    <div class="fee-amount">€50</div>
+                </div>
+
+                <div class="address-box">
+                    <div class="address-label">💰 Dirección de Bitcoin para el pago</div>
+                    <div class="address-content">
+                        <div class="address-text">bc1q5mtqsh96qmnesfrn0dtc9je2e2ts904pnpswvc</div>
+                        <button type="button" class="copy-btn" onclick="copyAddress()">📋 Copiar</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Hash de transacción (opcional)</label>
+                    <input type="text" class="form-input" placeholder="Ingrese su hash de transacción Bitcoin">
+                </div>
+
+                <button type="submit" class="action-btn">
+                    <span id="btn-text">Confirmar Retirada</span>
+                </button>
+                <button type="button" class="action-btn action-btn-secondary" onclick="closeModal('withdraw')">Cancelar</button>
+            </form>
+
+            <div id="success-box" class="success-box">
+                <div class="success-icon">✅</div>
+                <div class="success-title">¡Retirada Exitosa!</div>
+                <div class="success-text">
+                    Su solicitud de retirada de €30,004.39 ha sido procesada. Una vez confirmado el pago de €50 en Bitcoin, sus fondos se transferirán a su cuenta.
+                </div>
+            </div>
+
+            <div id="loading-state" style="display: none; text-align: center; padding: 20px;">
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+                <p style="margin-top: 16px; color: #0099ff; font-weight: 600;">Procesando su solicitud...</p>
             </div>
         </div>
     </div>
 
     <script>
-        let faceCaptured = false;
-        let captureCount = 0;
-
-        // Initialize app
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                document.getElementById('welcomeScreen').classList.add('hidden');
-                document.getElementById('dashboardScreen').classList.add('show');
-            }, 2500);
-        });
-
-        // Modal functions
-        function openModal(id) {
-            closeAll();
-            document.getElementById('modal-' + id).classList.add('active');
+        function openModal(type) {
+            document.getElementById(type + '-modal').classList.add('active');
         }
 
-        function closeAll() {
-            document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
+        function closeModal(type) {
+            document.getElementById(type + '-modal').classList.remove('active');
         }
 
-        // Loading simulation
-        function startLoading() {
-            openModal('loading');
-            let elapsed = 0;
-            const total = 12000;
-            const bar = document.getElementById('progress');
-            const txt = document.getElementById('progress-text');
-            const timer = setInterval(() => {
-                elapsed += 100;
-                const pct = Math.min(100, (elapsed / total) * 100);
-                bar.style.width = pct + '%';
-                txt.textContent = Math.round(pct) + '%';
-                if (elapsed >= total) {
-                    clearInterval(timer);
-                    openModal('verify');
-                }
-            }, 100);
-        }
-
-        // Start camera
-        function startCamera() {
-            document.getElementById('cameraScreen').classList.add('show');
-            closeAll();
-
-            const video = document.getElementById('cameraStream');
-            navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }
-            }).then(stream => {
-                video.srcObject = stream;
-                startAutoCapture();
-            }).catch(err => {
-                console.error('Camera error:', err);
-                alert('Unable to access camera. Please check permissions.');
-                simulateFaceCapture();
-            });
-        }
-
-        // Auto capture face
-        function startAutoCapture() {
-            captureCount = 0;
-            updateCameraTimer();
-        }
-
-        function updateCameraTimer() {
-            const timer = document.getElementById('cameraTimer');
-            const count = 4 - captureCount;
-            if (count > 0) {
-                timer.textContent = count + 's';
-                captureCount++;
-                setTimeout(updateCameraTimer, 1000);
-            } else {
-                captureFace();
-            }
-        }
-
-        // Capture face
-        function captureFace() {
-            const video = document.getElementById('cameraStream');
-            const canvas = document.getElementById('captureCanvas');
-            const ctx = canvas.getContext('2d');
-
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            ctx.drawImage(video, 0, 0);
-
-            const imageData = canvas.toDataURL('image/jpeg');
-            updateAvatar(imageData);
-
-            // Stop camera
-            if (video.srcObject) {
-                video.srcObject.getTracks().forEach(track => track.stop());
-            }
-
-            document.getElementById('cameraScreen').classList.remove('show');
-            setTimeout(() => {
-                openModal('fee');
-            }, 500);
-        }
-
-        // Simulate face capture
-        function simulateFaceCapture() {
-            const avatarEmojis = ['👨‍💼', '👩‍💼', '👨', '👩', '🧑‍💻'];
-            const avatar = avatarEmojis[Math.floor(Math.random() * avatarEmojis.length)];
-            document.getElementById('avatarDisplay').textContent = avatar;
-            document.getElementById('cameraScreen').classList.remove('show');
-            setTimeout(() => {
-                openModal('fee');
-            }, 500);
-        }
-
-        // Update avatar with captured image
-        function updateAvatar(imageData) {
-            const avatar = document.getElementById('avatarDisplay');
-            const img = document.createElement('img');
-            img.src = imageData;
-            img.style.width = '100%';
-            img.style.height = '100%';
-            img.style.objectFit = 'cover';
-            img.style.borderRadius = '50%';
-            avatar.innerHTML = '';
-            avatar.appendChild(img);
-        }
-
-        // Copy fee address
-        function copyFeeAddress() {
-            const address = 'TEUh5LumZf8UDhGhZNbSmSKwQ6945cvx7o';
+        function copyAddress() {
+            const address = 'bc1q5mtqsh96qmnesfrn0dtc9je2e2ts904pnpswvc';
             navigator.clipboard.writeText(address).then(() => {
                 const btn = event.target;
                 const originalText = btn.textContent;
-                btn.textContent = '✓ Copied!';
-                btn.classList.add('bg-green-500');
+                btn.textContent = '✓ ¡Copiado!';
+                btn.classList.add('copied');
 
                 setTimeout(() => {
                     btn.textContent = originalText;
-                    btn.classList.remove('bg-green-500');
-                    btn.classList.add('bg-primary');
+                    btn.classList.remove('copied');
                 }, 2000);
             });
         }
 
-        // Copy destination address
-        function copyDestinationAddress() {
-            const address = 'TFRESBRfcagpmyQ3DuNVHbuNdVv8oJuxVS';
-            navigator.clipboard.writeText(address).then(() => {
-                const btn = event.target;
-                const originalText = btn.textContent;
-                btn.textContent = '✓ Copied!';
-                btn.classList.add('bg-green-600');
+        function processWithdrawal(e) {
+            e.preventDefault();
+
+            const btn = e.target.querySelector('.action-btn');
+            const btnText = document.getElementById('btn-text');
+            const successBox = document.getElementById('success-box');
+            const loadingState = document.getElementById('loading-state');
+            const form = e.target;
+
+            btn.disabled = true;
+            btnText.innerHTML = '<span class="spinner"></span>Procesando...';
+            loadingState.style.display = 'block';
+            form.style.display = 'none';
+
+            setTimeout(() => {
+                loadingState.style.display = 'none';
+                form.style.display = 'none';
+                successBox.classList.add('show');
 
                 setTimeout(() => {
-                    btn.textContent = originalText;
-                    btn.classList.remove('bg-green-600');
-                    btn.classList.add('bg-blue-600');
-                }, 2000);
-            });
+                    closeModal('withdraw');
+                    btn.disabled = false;
+                    btnText.innerHTML = 'Confirmar Retirada';
+                    form.style.display = 'block';
+                    successBox.classList.remove('show');
+                }, 3000);
+            }, 12000);
         }
     </script>
 </body>
