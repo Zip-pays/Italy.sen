@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Banco Digital - Aplicación Móvil</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Tesla Workers Portal - Salary & Payments</title>
     <style>
         * {
             margin: 0;
@@ -13,311 +12,504 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #f0f2f5 100%);
-            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        .app-container {
-            max-width: 480px;
-            margin: 0 auto;
-            background: white;
+        .container {
+            max-width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Welcome Screen */
+        .welcome-screen {
+            text-align: center;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tesla-logo {
+            font-size: 64px;
+            margin-bottom: 24px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .welcome-title {
+            font-size: 48px;
+            font-weight: 300;
+            margin-bottom: 16px;
+            letter-spacing: 2px;
+        }
+
+        .welcome-subtitle {
+            font-size: 20px;
+            color: #aaa;
+            margin-bottom: 48px;
+            font-weight: 300;
+        }
+
+        .continue-btn {
+            background: linear-gradient(135deg, #e82127 0%, #ff3333 100%);
+            color: white;
+            border: none;
+            padding: 16px 48px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 24px rgba(232, 33, 39, 0.3);
+        }
+
+        .continue-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(232, 33, 39, 0.4);
+        }
+
+        .continue-btn:active {
+            transform: translateY(0);
+        }
+
+        /* ID Input Screen */
+        .id-input-screen {
+            display: none;
+            max-width: 500px;
+            width: 90%;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .id-input-screen.show {
+            display: block;
+        }
+
+        .id-input-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .id-input-title {
+            font-size: 32px;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+
+        .id-input-subtitle {
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #aaa;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(232, 33, 39, 0.3);
+            border-radius: 4px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #e82127;
+            background: rgba(232, 33, 39, 0.1);
+            box-shadow: 0 0 12px rgba(232, 33, 39, 0.2);
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #e82127 0%, #ff3333 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 24px rgba(232, 33, 39, 0.3);
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(232, 33, 39, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Loading State */
+        .loading-state {
+            text-align: center;
+            display: none;
+        }
+
+        .loading-state.show {
+            display: block;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(232, 33, 39, 0.2);
+            border-top-color: #e82127;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 24px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            font-size: 14px;
+            color: #aaa;
+            letter-spacing: 1px;
+        }
+
+        /* Dashboard */
+        .dashboard-screen {
+            display: none;
+            width: 100%;
             min-height: 100vh;
-            position: relative;
-            box-shadow: 0 0 50px rgba(0, 0, 0, 0.1);
+            padding: 40px 20px;
+        }
+
+        .dashboard-screen.show {
+            display: block;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
         /* Header */
-        .header {
-            background: white;
-            padding: 16px 20px;
+        .dashboard-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 40px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid rgba(232, 33, 39, 0.2);
         }
 
-        .logo {
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .tesla-brand {
             font-size: 28px;
-            font-weight: 700;
-            color: #0099ff;
+            margin-right: 24px;
         }
 
-        .header-icons {
+        .header-info h1 {
+            font-size: 28px;
+            margin-bottom: 4px;
+            letter-spacing: 1px;
+        }
+
+        .header-info p {
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        .header-right {
             display: flex;
             gap: 12px;
-            align-items: center;
         }
 
-        .icon-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #f5f7fa;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            transition: all 0.3s;
-        }
-
-        .icon-btn:hover {
-            background: #e8eef5;
-            transform: translateY(-2px);
-        }
-
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #0099ff 0%, #0077cc 100%);
+        .header-btn {
+            background: rgba(232, 33, 39, 0.1);
+            border: 1px solid rgba(232, 33, 39, 0.3);
             color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
+            padding: 10px 20px;
+            border-radius: 4px;
             cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        /* Main Content */
-        .content {
-            padding: 20px;
-            padding-bottom: 100px;
+        .header-btn:hover {
+            background: rgba(232, 33, 39, 0.2);
+            border-color: #e82127;
         }
 
-        /* Quick Menu */
-        .quick-menu {
+        /* Portfolio Card */
+        .portfolio-section {
+            background: linear-gradient(135deg, rgba(232, 33, 39, 0.05) 0%, rgba(51, 102, 204, 0.05) 100%);
+            border: 1px solid rgba(232, 33, 39, 0.2);
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .portfolio-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(232, 33, 39, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .portfolio-content {
+            position: relative;
+            z-index: 1;
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 32px;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
         }
 
-        .menu-item {
+        .portfolio-left h2 {
+            font-size: 14px;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .portfolio-amount {
+            font-size: 56px;
+            font-weight: 300;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #e82127 0%, #ff3333 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .portfolio-subtitle {
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        /* Mining Animation */
+        .mining-animation {
+            display: flex;
+            gap: 20px;
+            align-items: flex-end;
+            height: 200px;
+        }
+
+        .miner {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
-            padding: 16px;
-            border-radius: 12px;
-            background: white;
-            border: 1px solid #f0f0f0;
+            gap: 8px;
+            animation: mine 2s ease-in-out infinite;
+        }
+
+        .miner:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .miner:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+
+        .miner:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+
+        .miner:nth-child(4) {
+            animation-delay: 0.9s;
+        }
+
+        @keyframes mine {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        .miner-icon {
+            font-size: 40px;
+            filter: drop-shadow(0 0 10px rgba(232, 33, 39, 0.5));
+        }
+
+        .miner-bar {
+            width: 40px;
+            height: 120px;
+            background: linear-gradient(180deg, rgba(232, 33, 39, 0.3) 0%, rgba(232, 33, 39, 0.1) 100%);
+            border: 1px solid rgba(232, 33, 39, 0.5);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .miner-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60%;
+            background: linear-gradient(180deg, #e82127 0%, #ff3333 100%);
+            animation: fillBar 2s ease-in-out infinite;
+        }
+
+        @keyframes fillBar {
+            0%, 100% {
+                height: 30%;
+            }
+            50% {
+                height: 80%;
+            }
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(232, 33, 39, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            border-color: #e82127;
+            background: rgba(232, 33, 39, 0.1);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 300;
+        }
+
+        /* Withdrawal Section */
+        .withdrawal-section {
+            margin-top: 40px;
+        }
+
+        .withdrawal-title {
+            font-size: 24px;
+            margin-bottom: 24px;
+            letter-spacing: 1px;
+        }
+
+        .withdrawal-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .method-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(232, 33, 39, 0.2);
+            border-radius: 8px;
+            padding: 24px;
             cursor: pointer;
             transition: all 0.3s;
             text-align: center;
         }
 
-        .menu-item:hover {
+        .method-card:hover {
+            border-color: #e82127;
+            background: rgba(232, 33, 39, 0.1);
             transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0, 153, 255, 0.15);
         }
 
-        .menu-icon {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #0099ff 0%, #00d4ff 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            box-shadow: 0 4px 12px rgba(0, 153, 255, 0.3);
+        .method-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: rgba(200, 50, 50, 0.2);
         }
 
-        .menu-label {
-            font-size: 13px;
-            font-weight: 600;
-            color: #333;
+        .method-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
         }
 
-        /* Section Header */
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
-        .section-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: #1a1a1a;
-        }
-
-        .section-link {
-            font-size: 14px;
-            color: #0099ff;
-            text-decoration: none;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .section-link:hover {
-            color: #0077cc;
-        }
-
-        /* Account Cards */
-        .account-card {
-            background: linear-gradient(135deg, #fff9e6 0%, #fffaf0 100%);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-            position: relative;
-            overflow: hidden;
-            border-left: 6px solid #ffc107;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-
-        .account-card::before {
-            content: '';
-            position: absolute;
-            right: -30px;
-            bottom: -30px;
-            width: 150px;
-            height: 150px;
-            background: rgba(255, 193, 7, 0.1);
-            border-radius: 50%;
-        }
-
-        .account-label {
-            font-size: 12px;
-            color: #999;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .method-title {
+            font-size: 18px;
             margin-bottom: 8px;
-            font-weight: 600;
+            letter-spacing: 0.5px;
         }
 
-        .account-amount {
-            font-size: 32px;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin-bottom: 16px;
-        }
-
-        .account-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .method-description {
             font-size: 13px;
-            color: #666;
+            color: #aaa;
         }
 
-        .expand-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 20px;
-            color: #999;
-            transition: all 0.3s;
-        }
-
-        .expand-btn:hover {
-            color: #0099ff;
-        }
-
-        /* Transactions */
-        .transaction-item {
-            display: flex;
-            gap: 12px;
-            padding: 16px;
-            background: white;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            border: 1px solid #f0f0f0;
-            transition: all 0.3s;
-        }
-
-        .transaction-item:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        .transaction-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            flex-shrink: 0;
-        }
-
-        .transaction-info {
-            flex: 1;
-        }
-
-        .transaction-title {
-            font-weight: 600;
-            color: #1a1a1a;
-            margin-bottom: 4px;
-            font-size: 14px;
-        }
-
-        .transaction-date {
+        .method-status {
             font-size: 12px;
-            color: #999;
-        }
-
-        .transaction-amount {
-            font-weight: 700;
-            font-size: 14px;
-            color: #1a1a1a;
-        }
-
-        .transaction-amount.negative {
-            color: #d32f2f;
-        }
-
-        /* Bottom Navigation */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100%;
-            max-width: 480px;
-            background: white;
-            border-top: 1px solid #f0f0f0;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            padding: 12px 0;
-            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            flex: 1;
-            cursor: pointer;
-            transition: all 0.3s;
-            padding: 8px;
-            border-radius: 12px;
-        }
-
-        .nav-item.active {
-            background: linear-gradient(135deg, rgba(0, 153, 255, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%);
-        }
-
-        .nav-icon {
-            font-size: 24px;
-        }
-
-        .nav-label {
-            font-size: 11px;
+            color: #ff6b6b;
+            margin-top: 12px;
             font-weight: 600;
-            color: #666;
-        }
-
-        .nav-item.active .nav-label {
-            color: #0099ff;
         }
 
         /* Modal */
@@ -328,38 +520,33 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.8);
             z-index: 1000;
             align-items: center;
             justify-content: center;
             animation: fadeIn 0.3s ease-out;
         }
 
-        .modal.active {
+        .modal.show {
             display: flex;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
         .modal-content {
-            background: white;
-            border-radius: 24px;
-            padding: 24px;
-            max-width: 95%;
-            width: 100%;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            border: 1px solid rgba(232, 33, 39, 0.3);
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
             max-height: 90vh;
             overflow-y: auto;
             animation: slideUp 0.4s ease-out;
-            max-width: 480px;
         }
 
         @keyframes slideUp {
             from {
                 opacity: 0;
-                transform: translateY(30px);
+                transform: translateY(40px);
             }
             to {
                 opacity: 1;
@@ -371,530 +558,708 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .modal-title {
-            font-size: 22px;
-            font-weight: 700;
-            color: #1a1a1a;
+            font-size: 28px;
+            letter-spacing: 1px;
         }
 
         .modal-close {
             background: none;
             border: none;
-            font-size: 24px;
+            color: white;
+            font-size: 28px;
             cursor: pointer;
-            color: #999;
             transition: all 0.3s;
         }
 
         .modal-close:hover {
-            color: #0099ff;
+            color: #e82127;
             transform: rotate(90deg);
         }
 
-        /* Form */
-        .form-group {
+        /* Bank Modal */
+        .bank-info {
+            background: rgba(255, 100, 100, 0.1);
+            border: 1px solid rgba(255, 100, 100, 0.3);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .bank-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .bank-status {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #ff6b6b;
+        }
+
+        .bank-message {
+            font-size: 14px;
+            color: #aaa;
+            line-height: 1.6;
+        }
+
+        .btc-recommendation {
+            background: rgba(232, 33, 39, 0.1);
+            border: 1px solid rgba(232, 33, 39, 0.3);
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        /* BTC Withdrawal */
+        .btc-split-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .split-btn {
+            background: rgba(232, 33, 39, 0.1);
+            border: 2px solid rgba(232, 33, 39, 0.3);
+            color: white;
+            padding: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .split-btn.active {
+            border-color: #e82127;
+            background: linear-gradient(135deg, rgba(232, 33, 39, 0.3) 0%, rgba(232, 33, 39, 0.1) 100%);
+        }
+
+        .split-btn:hover {
+            border-color: #e82127;
+        }
+
+        .withdrawal-amount {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(232, 33, 39, 0.2);
+            border-radius: 4px;
+            padding: 16px;
+            margin-bottom: 24px;
+            font-size: 18px;
+            font-weight: 300;
+        }
+
+        /* Address Input */
+        .address-section {
+            margin-bottom: 24px;
+        }
+
+        .address-label {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #aaa;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .address-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(232, 33, 39, 0.2);
+            border-radius: 4px;
+            color: white;
+            font-size: 13px;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+        }
+
+        .address-input:focus {
+            outline: none;
+            border-color: #e82127;
+            background: rgba(232, 33, 39, 0.1);
+        }
+
+        /* Processing */
+        .processing-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .processing-screen.show {
+            display: block;
+        }
+
+        .atm-machine {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            border: 3px solid #e82127;
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 24px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(232, 33, 39, 0.3);
+        }
+
+        .atm-screen {
+            background: #111;
+            border: 2px solid #e82127;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 20px;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .atm-status {
+            font-size: 24px;
+            margin-bottom: 12px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .atm-message {
+            font-size: 14px;
+            color: #aaa;
             margin-bottom: 20px;
         }
 
-        .form-label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: #666;
+        .transaction-details {
+            background: rgba(232, 33, 39, 0.1);
+            border: 1px solid rgba(232, 33, 39, 0.3);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .transaction-row {
+            display: flex;
+            justify-content: space-between;
             margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-size: 13px;
         }
 
-        .form-input {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid #f0f0f0;
+        .transaction-label {
+            color: #aaa;
+        }
+
+        .transaction-value {
+            font-weight: 600;
+        }
+
+        /* Bot Notification */
+        .bot-notification {
+            display: none;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #1a1f3a 0%, #0a0e27 100%);
+            border: 1px solid rgba(232, 33, 39, 0.3);
             border-radius: 12px;
+            padding: 20px;
+            max-width: 350px;
+            z-index: 2000;
+            animation: slideInRight 0.5s ease-out;
+        }
+
+        .bot-notification.show {
+            display: block;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(400px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .bot-header {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+
+        .bot-icon {
+            font-size: 24px;
+        }
+
+        .bot-title {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .bot-message {
+            font-size: 13px;
+            color: #aaa;
+            line-height: 1.5;
+        }
+
+        .bot-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: none;
+            border: none;
+            color: #aaa;
+            cursor: pointer;
             font-size: 16px;
-            transition: all 0.3s;
-            font-family: inherit;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: #0099ff;
-            box-shadow: 0 0 0 3px rgba(0, 153, 255, 0.1);
-        }
-
-        .form-input:disabled {
-            background: #f9f9f9;
-            color: #999;
-            cursor: not-allowed;
         }
 
         /* Fee Box */
         .fee-box {
-            background: linear-gradient(135deg, #fff3cd 0%, #ffebcd 100%);
-            border: 2px solid #ffc107;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 20px;
+            background: rgba(232, 33, 39, 0.1);
+            border: 1px solid rgba(232, 33, 39, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
         }
 
         .fee-title {
             font-size: 14px;
-            font-weight: 700;
-            color: #856404;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .fee-text {
-            font-size: 13px;
-            color: #856404;
-            line-height: 1.5;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #e82127;
+            margin-bottom: 12px;
+            font-weight: 600;
         }
 
         .fee-amount {
-            font-size: 20px;
-            font-weight: 700;
-            color: #ff9800;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid rgba(255, 152, 0, 0.2);
-        }
-
-        /* Address Box */
-        .address-box {
-            background: linear-gradient(135deg, #f5f7fa 0%, #f0f2f5 100%);
-            border: 2px solid #0099ff;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-        }
-
-        .address-label {
-            font-size: 12px;
-            font-weight: 700;
-            color: #0099ff;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-size: 24px;
             margin-bottom: 8px;
         }
 
-        .address-content {
-            display: flex;
-            gap: 8px;
-            align-items: center;
+        .fee-description {
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 12px;
+            line-height: 1.5;
         }
 
-        .address-text {
-            flex: 1;
-            background: white;
-            border: 1px solid #e0e0e0;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 12px;
+        .fee-address {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(232, 33, 39, 0.2);
+            border-radius: 4px;
+            padding: 12px;
+            margin-top: 12px;
+            font-size: 11px;
             font-family: 'Courier New', monospace;
             word-break: break-all;
-            color: #333;
+            color: #aaa;
         }
 
-        .copy-btn {
-            background: linear-gradient(135deg, #0099ff 0%, #00d4ff 100%);
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.3s;
-            box-shadow: 0 2px 8px rgba(0, 153, 255, 0.3);
-        }
+        @media (max-width: 768px) {
+            .portfolio-content {
+                grid-template-columns: 1fr;
+            }
 
-        .copy-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 153, 255, 0.4);
-        }
+            .mining-animation {
+                height: 120px;
+            }
 
-        .copy-btn.copied {
-            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
-        }
+            .modal-content {
+                padding: 24px;
+            }
 
-        /* Action Button */
-        .action-btn {
-            width: 100%;
-            background: linear-gradient(135deg, #0099ff 0%, #00d4ff 100%);
-            color: white;
-            border: none;
-            padding: 16px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(0, 153, 255, 0.3);
-            margin-top: 8px;
-        }
-
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 153, 255, 0.4);
-        }
-
-        .action-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .action-btn-secondary {
-            background: white;
-            color: #0099ff;
-            border: 2px solid #0099ff;
-        }
-
-        .action-btn-secondary:hover {
-            background: linear-gradient(135deg, rgba(0, 153, 255, 0.05) 0%, rgba(0, 212, 255, 0.05) 100%);
-        }
-
-        /* Loading */
-        .spinner {
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            margin-right: 8px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Success Message */
-        .success-box {
-            background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
-            border: 2px solid #4caf50;
-            border-radius: 12px;
-            padding: 16px;
-            text-align: center;
-            display: none;
-        }
-
-        .success-box.show {
-            display: block;
-            animation: slideUp 0.4s ease-out;
-        }
-
-        .success-icon {
-            font-size: 40px;
-            margin-bottom: 12px;
-        }
-
-        .success-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: #2e7d32;
-            margin-bottom: 8px;
-        }
-
-        .success-text {
-            font-size: 13px;
-            color: #558b2f;
-            line-height: 1.5;
-        }
-
-        /* Info Box */
-        .info-box {
-            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
-            border: 2px solid #2196f3;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-        }
-
-        .info-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: #1565c0;
-            margin-bottom: 8px;
-        }
-
-        .info-text {
-            font-size: 13px;
-            color: #1976d2;
-            line-height: 1.5;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 4px;
-            background: #f0f0f0;
-            border-radius: 2px;
-            overflow: hidden;
-            margin-top: 16px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #0099ff 0%, #00d4ff 100%);
-            animation: progress 12s ease-out;
-        }
-
-        @keyframes progress {
-            0% { width: 0%; }
-            100% { width: 100%; }
+            .withdrawal-methods {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Header -->
-        <div class="header">
-            <div class="logo">⭐</div>
-            <div class="header-icons">
-                <button class="icon-btn">⚠️</button>
-                <button class="icon-btn">📧</button>
-                <button class="icon-btn">👁️</button>
-                <div class="avatar">JQ</div>
-            </div>
+    <div class="container">
+        <!-- Welcome Screen -->
+        <div class="welcome-screen" id="welcomeScreen">
+            <div class="tesla-logo">🚗</div>
+            <h1 class="welcome-title">Welcome to Elon Musk Workers Portal</h1>
+            <p class="welcome-subtitle">Check and Access Your Salary and Payments</p>
+            <button class="continue-btn" onclick="showIDInput()">Continue</button>
         </div>
 
-        <!-- Main Content -->
-        <div class="content">
-            <!-- Quick Menu -->
-            <div class="quick-menu">
-                <div class="menu-item">
-                    <div class="menu-icon">%</div>
-                    <div class="menu-label">Bizum</div>
-                </div>
-                <div class="menu-item">
-                    <div class="menu-icon">↗️</div>
-                    <div class="menu-label">Transferencia</div>
-                </div>
-                <div class="menu-item">
-                    <div class="menu-icon">💶</div>
-                    <div class="menu-label">Recibos</div>
-                </div>
-                <div class="menu-item">
-                    <div class="menu-icon">👤</div>
-                    <div class="menu-label">Contactar</div>
-                </div>
+        <!-- ID Input Screen -->
+        <div class="id-input-screen" id="idInputScreen">
+            <div class="id-input-header">
+                <h2 class="id-input-title">Worker Verification</h2>
+                <p class="id-input-subtitle">Enter your Private ID to access the portal</p>
             </div>
 
-            <!-- Cuentas Section -->
-            <div class="section-header">
-                <h2 class="section-title">Cuentas</h2>
-                <a class="section-link">Ver todas</a>
-            </div>
-
-            <!-- Account Card -->
-            <div class="account-card">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                    <div>
-                        <div class="account-label">Saldo disponible</div>
-                        <div class="account-amount">€30,004.39</div>
-                    </div>
-                    <button class="expand-btn">⬆️</button>
-                </div>
-                <div class="account-footer">
-                    <div>
-                        <div style="font-size: 12px; color: #999; margin-bottom: 2px;">Hoy</div>
-                        <div style="font-size: 14px; font-weight: 600; color: #1a1a1a;">Mrcr Mobile P...</div>
-                    </div>
-                    <div style="text-align: right;">
-                        <div style="font-size: 14px; font-weight: 600; color: #d32f2f;">-410,00€</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Transactions -->
-            <div style="margin-bottom: 16px;">
-                <div class="transaction-item">
-                    <div class="transaction-icon">🛍️</div>
-                    <div class="transaction-info">
-                        <div class="transaction-title">Mrcr Mobile P...</div>
-                        <div class="transaction-date">Hoy</div>
-                    </div>
-                    <div class="transaction-amount negative">-410,00€</div>
+            <form onsubmit="verifyID(event)">
+                <div class="form-group">
+                    <label class="form-label">Private ID</label>
+                    <input type="text" id="privateID" class="form-input" placeholder="REF-Sturluson2026" required>
                 </div>
 
-                <div class="transaction-item">
-                    <div class="transaction-icon">🛍️</div>
-                    <div class="transaction-info">
-                        <div class="transaction-title">Mrcr Mobile</div>
-                        <div class="transaction-date">Hoy</div>
-                    </div>
-                    <div class="transaction-amount negative">-330,00€</div>
-                </div>
+                <button type="submit" class="submit-btn">Verify and Access</button>
+            </form>
 
-                <div class="transaction-item">
-                    <div class="transaction-icon">🛍️</div>
-                    <div class="transaction-info">
-                        <div class="transaction-title">Mrcr Mobile P...</div>
-                        <div class="transaction-date">Hoy</div>
-                    </div>
-                    <div class="transaction-amount negative">-100,00€</div>
-                </div>
-            </div>
-
-            <a class="section-link" style="display: block; margin-bottom: 32px;">Todos los movimientos →</a>
-
-            <!-- Tarjetas Section -->
-            <div class="section-header">
-                <h2 class="section-title">Tarjetas</h2>
-                <a class="section-link">Ver todas</a>
-            </div>
-
-            <div class="transaction-item">
-                <div class="transaction-icon">💳</div>
-                <div class="transaction-info">
-                    <div class="transaction-title" style="color: #666;">Mercadilúzclás</div>
-                    <div class="transaction-date">•••• 6173</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Bottom Navigation -->
-        <div class="bottom-nav">
-            <div class="nav-item active">
-                <span class="nav-icon">🏠</span>
-                <span class="nav-label">Inicio</span>
-            </div>
-            <div class="nav-item">
-                <span class="nav-icon">📊</span>
-                <span class="nav-label">Mis productos</span>
-            </div>
-            <div class="nav-item" onclick="openModal('withdraw')">
-                <span class="nav-icon">➕</span>
-                <span class="nav-label">Contratar</span>
-            </div>
-            <div class="nav-item">
-                <span class="nav-icon">❓</span>
-                <span class="nav-label">Ayuda</span>
+            <div class="loading-state" id="loadingState">
+                <div class="spinner"></div>
+                <div class="loading-text">Verifying credentials...</div>
             </div>
         </div>
     </div>
 
-    <!-- Withdrawal Modal -->
-    <div id="withdraw-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Retirada de Fondos</h2>
-                <button class="modal-close" onclick="closeModal('withdraw')">✕</button>
-            </div>
-
-            <div class="info-box">
-                <div class="info-title">💶 Saldo disponible para retirar</div>
-                <div class="info-text">€30,004.39 USDT - Listo para procesamiento</div>
-            </div>
-
-            <form onsubmit="processWithdrawal(event)">
-                <div class="form-group">
-                    <label class="form-label">Cantidad a retirar</label>
-                    <input type="text" class="form-input" value="€30,004.39" disabled>
-                </div>
-
-                <div class="fee-box">
-                    <div class="fee-title">⚠️ Tarifa de recuperación requerida</div>
-                    <div class="fee-text">
-                        Se requiere una tarifa única de recuperación de <strong>€50</strong> para completar la firma de recuperación y la compensación de transferencia. Esta tarifa garantiza la seguridad de su transacción.
-                    </div>
-                    <div class="fee-amount">€50</div>
-                </div>
-
-                <div class="address-box">
-                    <div class="address-label">💰 Dirección de Bitcoin para el pago</div>
-                    <div class="address-content">
-                        <div class="address-text">bc1q5mtqsh96qmnesfrn0dtc9je2e2ts904pnpswvc</div>
-                        <button type="button" class="copy-btn" onclick="copyAddress()">📋 Copiar</button>
+    <!-- Dashboard Screen -->
+    <div class="dashboard-screen" id="dashboardScreen">
+        <div class="dashboard-container">
+            <!-- Header -->
+            <div class="dashboard-header">
+                <div class="header-left">
+                    <div class="tesla-brand">🚗</div>
+                    <div class="header-info">
+                        <h1>Worker Dashboard</h1>
+                        <p>Salary & Payment Management</p>
                     </div>
                 </div>
-
-                <div class="form-group">
-                    <label class="form-label">Hash de transacción (opcional)</label>
-                    <input type="text" class="form-input" placeholder="Ingrese su hash de transacción Bitcoin">
-                </div>
-
-                <button type="submit" class="action-btn">
-                    <span id="btn-text">Confirmar Retirada</span>
-                </button>
-                <button type="button" class="action-btn action-btn-secondary" onclick="closeModal('withdraw')">Cancelar</button>
-            </form>
-
-            <div id="success-box" class="success-box">
-                <div class="success-icon">✅</div>
-                <div class="success-title">¡Retirada Exitosa!</div>
-                <div class="success-text">
-                    Su solicitud de retirada de €30,004.39 ha sido procesada. Una vez confirmado el pago de €50 en Bitcoin, sus fondos se transferirán a su cuenta.
+                <div class="header-right">
+                    <button class="header-btn" onclick="toggleDetails()">View Details</button>
+                    <button class="header-btn" onclick="logout()">Logout</button>
                 </div>
             </div>
 
-            <div id="loading-state" style="display: none; text-align: center; padding: 20px;">
-                <div class="progress-bar">
-                    <div class="progress-fill"></div>
+            <!-- Portfolio Section -->
+            <div class="portfolio-section">
+                <div class="portfolio-content">
+                    <div class="portfolio-left">
+                        <h2>Total Earnings</h2>
+                        <div class="portfolio-amount">€848,411</div>
+                        <p class="portfolio-subtitle">Available for withdrawal</p>
+                    </div>
+                    <div class="portfolio-right">
+                        <div class="mining-animation">
+                            <div class="miner">
+                                <div class="miner-icon">⛏️</div>
+                                <div class="miner-bar">
+                                    <div class="miner-fill"></div>
+                                </div>
+                            </div>
+                            <div class="miner">
+                                <div class="miner-icon">⛏️</div>
+                                <div class="miner-bar">
+                                    <div class="miner-fill"></div>
+                                </div>
+                            </div>
+                            <div class="miner">
+                                <div class="miner-icon">⛏️</div>
+                                <div class="miner-bar">
+                                    <div class="miner-fill"></div>
+                                </div>
+                            </div>
+                            <div class="miner">
+                                <div class="miner-icon">⛏️</div>
+                                <div class="miner-bar">
+                                    <div class="miner-fill"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <p style="margin-top: 16px; color: #0099ff; font-weight: 600;">Procesando su solicitud...</p>
+
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Monthly Earnings</div>
+                        <div class="stat-value">€42,500</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Payments</div>
+                        <div class="stat-value">24</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Last Payment</div>
+                        <div class="stat-value">€8,500</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Network Status</div>
+                        <div class="stat-value">✓ Active</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Withdrawal Section -->
+            <div class="withdrawal-section">
+                <h2 class="withdrawal-title">Request Withdrawal</h2>
+                <div class="withdrawal-methods">
+                    <div class="method-card disabled">
+                        <div class="method-icon">🏦</div>
+                        <h3 class="method-title">Bank Transfer</h3>
+                        <p class="method-description">Direct to your account</p>
+                        <div class="method-status">⚠️ Currently Unavailable</div>
+                    </div>
+                    <div class="method-card" onclick="openBTCModal()">
+                        <div class="method-icon">₿</div>
+                        <h3 class="method-title">Bitcoin (BTC)</h3>
+                        <p class="method-description">Instant Processing</p>
+                        <div style="color: #4caf50; margin-top: 12px; font-weight: 600;">✓ Available Now</div>
+                    </div>
+                </div>
             </div>
         </div>
+    </div>
+
+    <!-- Bank Modal -->
+    <div class="modal" id="bankModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Bank Transfer</h2>
+                <button class="modal-close" onclick="closeModal('bankModal')">×</button>
+            </div>
+
+            <div class="bank-info">
+                <div class="bank-icon">⚠️</div>
+                <div class="bank-status">Method Temporarily Unavailable</div>
+                <div class="bank-message">
+                    This method is not currently available due to high compliance requirements on bank transactions lately. We're working to restore this service soon.
+                </div>
+                <div class="btc-recommendation">
+                    💡 We recommend using our Bitcoin (BTC) method for immediate and secure transaction processing with lower fees.
+                </div>
+            </div>
+
+            <button class="submit-btn" onclick="switchToBTC()">Switch to Bitcoin Method</button>
+            <button class="submit-btn" style="background: rgba(232, 33, 39, 0.1); border: 1px solid rgba(232, 33, 39, 0.3); margin-top: 12px;" onclick="closeModal('bankModal')">Cancel</button>
+        </div>
+    </div>
+
+    <!-- BTC Modal -->
+    <div class="modal" id="btcModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Bitcoin Withdrawal</h2>
+                <button class="modal-close" onclick="closeModal('btcModal')">×</button>
+            </div>
+
+            <div id="btcForm">
+                <div style="background: rgba(232, 33, 39, 0.1); border: 1px solid rgba(232, 33, 39, 0.3); border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+                    <h3 style="font-size: 14px; margin-bottom: 8px;">Select Withdrawal Amount</h3>
+                    <div class="btc-split-buttons">
+                        <button type="button" class="split-btn active" onclick="selectAmount(50)">50% (€424,206)</button>
+                        <button type="button" class="split-btn" onclick="selectAmount(75)">75% (€636,309)</button>
+                        <button type="button" class="split-btn" onclick="selectAmount(100)">100% (€848,411)</button>
+                    </div>
+                </div>
+
+                <div class="withdrawal-amount">
+                    Amount: <span id="selectedAmount">€424,206</span>
+                </div>
+
+                <div class="address-section">
+                    <label class="address-label">Your Bitcoin Address</label>
+                    <input type="text" id="btcAddress" class="address-input" placeholder="Enter your Bitcoin wallet address" required>
+                </div>
+
+                <button type="button" class="submit-btn" onclick="processWithdrawal()">Process Withdrawal</button>
+                <button type="button" class="submit-btn" style="background: rgba(232, 33, 39, 0.1); border: 1px solid rgba(232, 33, 39, 0.3); margin-top: 12px;" onclick="closeModal('btcModal')">Cancel</button>
+            </div>
+
+            <div id="processingForm" style="display: none;">
+                <div class="processing-screen show">
+                    <div class="atm-machine">
+                        <div style="font-size: 32px; margin-bottom: 16px;">🏧</div>
+                        <h3 style="font-size: 20px; margin-bottom: 12px; letter-spacing: 1px;">ATM PROCESSING</h3>
+                        <div class="atm-screen">
+                            <div class="atm-status">⚙️ Connecting...</div>
+                            <div class="atm-message">Linking to Bitcoin Network</div>
+                            <div class="spinner" style="margin: 20px auto; width: 30px; height: 30px;"></div>
+                        </div>
+
+                        <div class="transaction-details">
+                            <div class="transaction-row">
+                                <span class="transaction-label">Withdrawal Amount</span>
+                                <span class="transaction-value" id="atmAmount">€424,206</span>
+                            </div>
+                            <div class="transaction-row">
+                                <span class="transaction-label">Processing Fee</span>
+                                <span class="transaction-value">€94</span>
+                            </div>
+                            <div class="transaction-row" style="border-top: 1px solid rgba(232, 33, 39, 0.3); padding-top: 8px; margin-top: 8px;">
+                                <span class="transaction-label">Total to Be Processed</span>
+                                <span class="transaction-value" id="atmTotal">€424,300</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="fee-box">
+                        <div class="fee-title">💰 Mempool Energy Allowance</div>
+                        <div class="fee-amount">€94</div>
+                        <div class="fee-description">
+                            Network processing and confirmation fee for Bitcoin transaction. This ensures priority processing on the blockchain network.
+                        </div>
+                        <div style="font-size: 12px; color: #aaa; font-weight: 600; margin-bottom: 8px;">Send €94 to BTM Confirmation Address:</div>
+                        <div class="fee-address">bc1qzzch67qnpv54gd8szmevku4yguqq268l3khrp0</div>
+                    </div>
+
+                    <button type="button" class="submit-btn" onclick="completeWithdrawal()">Confirm and Complete</button>
+                    <button type="button" class="submit-btn" style="background: rgba(232, 33, 39, 0.1); border: 1px solid rgba(232, 33, 39, 0.3); margin-top: 12px;" onclick="backToForm()">Back</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bot Notification -->
+    <div class="bot-notification" id="botNotification">
+        <button class="bot-close" onclick="closeBotNotification()">×</button>
+        <div class="bot-header">
+            <div class="bot-icon">🤖</div>
+            <div class="bot-title">System Assistant</div>
+        </div>
+        <div class="bot-message" id="botMessage"></div>
     </div>
 
     <script>
-        function openModal(type) {
-            document.getElementById(type + '-modal').classList.add('active');
+        let currentAmount = 50;
+        let selectedBTCAmount = 424206;
+
+        function showIDInput() {
+            document.getElementById('welcomeScreen').style.display = 'none';
+            document.getElementById('idInputScreen').classList.add('show');
         }
 
-        function closeModal(type) {
-            document.getElementById(type + '-modal').classList.remove('active');
-        }
-
-        function copyAddress() {
-            const address = 'bc1q5mtqsh96qmnesfrn0dtc9je2e2ts904pnpswvc';
-            navigator.clipboard.writeText(address).then(() => {
-                const btn = event.target;
-                const originalText = btn.textContent;
-                btn.textContent = '✓ ¡Copiado!';
-                btn.classList.add('copied');
-
-                setTimeout(() => {
-                    btn.textContent = originalText;
-                    btn.classList.remove('copied');
-                }, 2000);
-            });
-        }
-
-        function processWithdrawal(e) {
+        function verifyID(e) {
             e.preventDefault();
-
-            const btn = e.target.querySelector('.action-btn');
-            const btnText = document.getElementById('btn-text');
-            const successBox = document.getElementById('success-box');
-            const loadingState = document.getElementById('loading-state');
+            const privateID = document.getElementById('privateID').value;
+            const loadingState = document.getElementById('loadingState');
             const form = e.target;
 
-            btn.disabled = true;
-            btnText.innerHTML = '<span class="spinner"></span>Procesando...';
-            loadingState.style.display = 'block';
             form.style.display = 'none';
+            loadingState.classList.add('show');
 
             setTimeout(() => {
-                loadingState.style.display = 'none';
-                form.style.display = 'none';
-                successBox.classList.add('show');
-
-                setTimeout(() => {
-                    closeModal('withdraw');
-                    btn.disabled = false;
-                    btnText.innerHTML = 'Confirmar Retirada';
+                if (privateID === 'REF-Sturluson2026') {
+                    document.getElementById('idInputScreen').classList.remove('show');
+                    document.getElementById('dashboardScreen').classList.add('show');
+                    showBotNotification('Welcome back! Your account has been verified. You have €848,411 available for withdrawal.');
+                } else {
+                    showBotNotification('⚠️ Invalid Private ID. Please try again.', 'error');
                     form.style.display = 'block';
-                    successBox.classList.remove('show');
-                }, 3000);
-            }, 12000);
+                    loadingState.classList.remove('show');
+                }
+            }, 2000);
+        }
+
+        function openBTCModal() {
+            showBotNotification('Opening Bitcoin withdrawal form. You can choose to withdraw 50%, 75%, or 100% of your earnings.');
+            document.getElementById('btcModal').classList.add('show');
+        }
+
+        function closeModal(modalID) {
+            document.getElementById(modalID).classList.remove('show');
+        }
+
+        function switchToBTC() {
+            closeModal('bankModal');
+            setTimeout(() => {
+                openBTCModal();
+            }, 300);
+        }
+
+        function selectAmount(percentage) {
+            currentAmount = percentage;
+            const amounts = {
+                50: 424206,
+                75: 636309,
+                100: 848411
+            };
+            selectedBTCAmount = amounts[percentage];
+            document.getElementById('selectedAmount').textContent = '€' + amounts[percentage].toLocaleString();
+
+            // Update buttons
+            document.querySelectorAll('.split-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            showBotNotification(`You have selected ${percentage}% withdrawal: €${amounts[percentage].toLocaleString()}`);
+        }
+
+        function processWithdrawal() {
+            const btcAddress = document.getElementById('btcAddress').value;
+            if (!btcAddress) {
+                showBotNotification('⚠️ Please enter a valid Bitcoin address.', 'error');
+                return;
+            }
+
+            if (btcAddress.length < 20) {
+                showBotNotification('⚠️ Bitcoin address appears to be invalid. Please verify.', 'error');
+                return;
+            }
+
+            document.getElementById('btcForm').style.display = 'none';
+            document.getElementById('processingForm').style.display = 'block';
+
+            const atmAmount = document.getElementById('atmAmount');
+            const atmTotal = document.getElementById('atmTotal');
+            atmAmount.textContent = '€' + selectedBTCAmount.toLocaleString();
+            atmTotal.textContent = '€' + (selectedBTCAmount + 94).toLocaleString();
+
+            showBotNotification(`💡 Processing your €${selectedBTCAmount.toLocaleString()} withdrawal. Your Bitcoin address has been registered: ${btcAddress.substring(0, 10)}...`);
+
+            setTimeout(() => {
+                showBotNotification('🔗 Connected to Bitcoin network. Preparing transaction for ATM processing. Please ensure you have €94 available for the Mempool Energy Allowance fee.');
+            }, 4000);
+        }
+
+        function completeWithdrawal() {
+            showBotNotification('✅ Withdrawal processing initiated! You will receive your funds once the €94 BTM confirmation fee is received at the provided address.');
+            setTimeout(() => {
+                closeModal('btcModal');
+                showBotNotification('Transaction recorded. Check your Bitcoin wallet for incoming funds within 30 minutes.');
+            }, 3000);
+        }
+
+        function backToForm() {
+            document.getElementById('processingForm').style.display = 'none';
+            document.getElementById('btcForm').style.display = 'block';
+        }
+
+        function showBotNotification(message, type = 'info') {
+            const notification = document.getElementById('botNotification');
+            const messageEl = document.getElementById('botMessage');
+            messageEl.textContent = message;
+            notification.classList.add('show');
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 6000);
+        }
+
+        function closeBotNotification() {
+            document.getElementById('botNotification').classList.remove('show');
+        }
+
+        function toggleDetails() {
+            showBotNotification('Detailed earnings breakdown displayed. Monthly average: €42,500 | Last 7 days: €6,200 | Current month progress: 68%');
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.reload();
+            }
         }
     </script>
 </body>
